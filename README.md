@@ -2,6 +2,7 @@ Blockade
 ========
 
 A website for submitting and running 'Blockade' bots.
+See http://tinyurl.com/los8svs for example gameplay between bots.
 
 Currently implemented:
  - Sketch of communication protocol with game 'Arbiter'
