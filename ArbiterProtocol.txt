@@ -1,0 +1,27 @@
+// The internal communication protocol between the arbiter and the modules interfacing with the AIs.
+// '<<' denotes writing to stdout (i.e. sending to the arbiter), '>>' represents reading from stdin.
+
+// Initially:
+<< Name << endl
+<< Red << Green << Blue << endl // Colour, RGB components
+>> BoardSize >> PlayerID
+// NB: 'Name' is most 20 characters long, and can contain alphanumeric characters, spaces, and underscores.
+
+
+
+// Arbiter commands:
+
+>> "move" >> PlayerID >> X >> Y // Update player position command
+>> "block" >> PlayerID >> X >> Y // Block a square command
+
+// Make turn command:
+>> "turn"
+// Response is either:
+<< "move" << Direction << endl // 0,1,2,3 = UP,RIGHT,DOWN,LEFT
+// Or:
+<< "block" << X << Y << endl
+// Or:
+<< "nothing" << endl // The client has failed to provide a move
+
+// End command: (terminate)
+>> "end"
