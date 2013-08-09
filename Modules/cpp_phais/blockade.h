@@ -1,3 +1,13 @@
+/* PHAIS Blockade Interface for C++
+ * -------------------------------------------
+ * Declares the interface the client bot must adhere to for this 'Blockade' implementation.
+ * -------------------------------------------
+ * Authored by several awesome people.
+ * -------------------------------------------
+ */
+
+
+
 #ifndef __BLOCKADE_H
 #define __BLOCKADE_H
 

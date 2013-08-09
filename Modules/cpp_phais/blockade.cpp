@@ -1,11 +1,11 @@
-//---------------
-// Blockade.cpp |
-//------------------------------------------------------------------
-// Implements the interface between the client and the arbiter
-// satisfying the "blockade.h" interface and the arbiter interface.
-//------------------------------------------------------------------
-// Author:  James Payor
-//------------------------------------------------------------------
+/* PHAIS Blockade Interface for C++
+ * -------------------------------------------
+ * Implements the interface between the Arbiter and client as specified by the 'ArbiterProtocol' and
+ * 'blockade.h' files for the 'Blockade' game.
+ * -------------------------------------------
+ * Author:  James Payor (github.com/amoebius)
+ * -------------------------------------------
+ */
 
 #include <iostream>
 #include <algorithm>
