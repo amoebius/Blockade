@@ -27,7 +27,6 @@ static int boardSize, myPID;
 // Move information:
 static const int nothing = 0, moving = 1, blocking = 2;
 static int playerMove, moveDir, moveX, moveY;
-static string errorMsg;
 
 int main() {
 	// Allow the client to set a name and colour:
@@ -57,6 +56,9 @@ int main() {
 
 	// Read initial values from the Arbiter, and initialise the client:
 	cin >> boardSize >> myPID;
+	int dummy;
+	for(int i=0; i<2; ++i) cin >> dummy >> dummy; // Burn up the input of initial coordinates.
+
 	clientInit(boardSize, myPID);
 
 	// Main command loop:
@@ -81,7 +83,6 @@ int main() {
 		} else if (command == str_turn) {
 			// Make a move:
 			playerMove = nothing;
-			errorMsg = "No move was made by the client.";
 			clientDoTurn();
 
 			if(playerMove == moving) {

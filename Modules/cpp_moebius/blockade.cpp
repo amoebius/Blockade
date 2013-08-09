@@ -20,7 +20,7 @@ using namespace std;
 static const string str_move("move"), str_block("block"), str_turn("turn"), str_end("end"), str_nothing("nothing");
 
 // Global information:
-static int boardSize, myPID;
+static int boardSize, myPID, player_x[2], player_y[2];
 
 // Move information:
 static const int nothing = 0, moving = 1, blocking = 2;
@@ -53,7 +53,10 @@ int main() {
 
 	// Read initial values from the Arbiter, and initialise the client:
 	cin >> boardSize >> myPID;
-	clientInit(boardSize, myPID);
+	for(int id=0; id<2; ++id) cin >> player_x[id] >> player_y[id];
+
+	newGame();
+
 
 	// Main command loop:
 	while (true) {
@@ -65,14 +68,14 @@ int main() {
 		if (command == str_move) {
 			// Update the player position:
 			int playerID, x, y;
-			cin >> playerID >> x >> y;
-			clientPlayerPosition(playerID, x, y);
+			cin >> playerID;
+			cin >> player_x[playerID] >> player_y[playerID];
 
 		} else if (command == str_block) {
 			// Block the square:
 			int playerID, x, y;
 			cin >> playerID >> x >> y;
-			clientSquareIsBlocked(playerID, x, y);
+			setSquare(playerID, x, y);
 
 		} else if (command == str_turn) {
 			// Make a move:

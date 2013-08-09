@@ -5,6 +5,9 @@
 << Name << endl
 << Red << Green << Blue << endl // Colour, RGB components
 >> BoardSize >> PlayerID
+>> X >> Y // for PID 0
+>> X >> Y // for PID 1
+
 // NB: 'Name' is most 20 characters long, and can contain alphanumeric characters, spaces, and underscores.
 
 
