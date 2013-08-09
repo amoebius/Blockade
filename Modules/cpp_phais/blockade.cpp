@@ -52,7 +52,7 @@ int main() {
 	blue = max(min(blue, 255), 0);
 
 	// Send these values to the Arbiter:
-	cout << player_name << endl;
+	cout << player_name.substr(0, maxLen) << endl;
 	cout << red << ' ' << green << ' ' << blue << endl;
 
 	// Read initial values from the Arbiter, and initialise the client:
