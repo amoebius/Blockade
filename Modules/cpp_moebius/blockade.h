@@ -1,7 +1,8 @@
 #ifndef __BLOCKADE_H
 #define __BLOCKADE_H
 
-/* Moebius Blockade Interface for C++
+/* -------------------------------------------
+ * Moebius Blockade Interface for C++
  * -------------------------------------------
  * Below are the descriptions of the functions provided by the interface and the functions that a bot must implement.
  * Following are prototypes and more in-depth description.
