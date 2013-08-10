@@ -12,7 +12,7 @@
 #define __THREADING_HPP
 
 // Required declarations for HawkThreads (cross-platform multithreading library):
-#include <hawkthreads.hpp>
+#include "hawkthreads.hpp"
 
 // Useful for marking void return values:
 typedef int threadvoid;

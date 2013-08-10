@@ -13,7 +13,7 @@
 
 // Requred headers:
 #include <cstddef>
-#include <HT/hawkthreads.h>
+#include "HT/hawkthreads.h"
 
 
 // Wrapper functions to provide a nicer interface:
