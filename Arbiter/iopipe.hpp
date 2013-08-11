@@ -29,7 +29,8 @@
  * input.bind(); // Binds to stdin.
  * output.bind(); // Binds to stdout.
  *
- * See definitions below for further functionality (open(), close(), inFile(), outFile(), shared underlying streams on copying, etc.)
+ * See definitions below for further functionality.
+ * (open(), close(), inFile(), outFile(), shared underlying streams on copying, etc.)
 
 
 
@@ -50,141 +51,82 @@
 #ifndef __IOPIPE_HPP
 #define __IOPIPE_HPP
 
+
 #include <iostream>
-#include <ext/stdio_filebuf.h> // non-standard, see above note
-typedef __gnu_cxx::stdio_filebuf<char> fdbuffer;
+#include "ipipe.hpp"
+#include "opipe.hpp"
 
 
-class ipipe {
 
-private:
-	class ipipe_ref {
-	public:
-		explicit ipipe_ref(int fd);
-		~ipipe_ref();
-		void inc();
-		void dec();
-		const int file();
-
-		template <typename T>
-		std::istream& operator >> (T& rhs) {
-			return stream >> rhs;
-		}
-
-		operator std::istream& ();
-
-	private:
-		int instances, fd;
-		fdbuffer buffer;
-		std::istream stream;
-	};
-
-public:
-	ipipe();
-	explicit ipipe(int fd);
-	ipipe(const ipipe& other);
-	ipipe& operator = (const ipipe& other);
-	~ipipe();
-	void open(int fd);
-	void close();
-	void bind();
-	const int file();
-
-	operator std::istream& ();
-
-	template <typename T>
-	std::istream& operator >> (T& rhs) {
-		if(!isOpen) throw std::ios_base::failure("Input pipe not open.");
-		return *pipe >> rhs;
-	}
-
-private:
-	ipipe_ref *pipe;
-	bool isOpen;
-};
-
-
-class opipe {
-
-private:
-	class opipe_ref {
-	public:
-		explicit opipe_ref(int fd);
-		~opipe_ref();
-		void inc();
-		void dec();
-		const int file();
-
-		template <typename T>
-		std::ostream& operator << (const T& rhs) {
-			return stream << rhs;
-		}
-
-		operator std::ostream& ();
-
-	private:
-		int instances, fd;
-		fdbuffer buffer;
-		std::ostream stream;
-	};
-
-public:
-	opipe();
-	explicit opipe(int fd);
-	opipe(const opipe& other);
-	opipe& operator = (const opipe& other);
-	~opipe();
-	void open(int fd);
-	void close();
-	void bind();
-	const int file();
-
-	operator std::ostream& ();
-
-	template <typename T>
-	std::ostream& operator << (const T& rhs) {
-		if(!isOpen) throw std::ios_base::failure("Output pipe not open.");
-		return *pipe << rhs;
-	}
-
-private:
-	opipe_ref *pipe;
-	bool isOpen;
-};
-
-
+/* iopipe:
+ * Constructs pipes and corresponding ipipe and opipe objects, providing stream-like
+ * reading and writing to a pipe.
+ ************************************************************************************/
 class iopipe {
 public:
+	// Construct an iopipe bound to a new pipe (this will instantiate a pipe and deal with the
+	// corresponding file descriptors, binding them to an ipipe and opipe):
 	iopipe();
+	// Construct an iopipe NOT bound to a new pipe - i.e. not bound to any file / closed:
 	explicit iopipe(int);
-	iopipe(int in_fd, int out_fd);
-	iopipe(ipipe in, opipe out);
-	iopipe(const iopipe& other);
-	iopipe& operator = (const iopipe& other);
-	const ipipe getIn();
-	const opipe getOut();
-	const int inFile();
-	const int outFile();
-	void open();
-	void open(int in_fd, int out_fd);
-	void close();
 
+	// Construct an iopipe bound to the given input and output file descriptors:
+	iopipe(int in_fd, int out_fd);
+	// Construct an iopipe from a separate ipipe and opipe, useful for combining two pipe streams
+	// into one interface:
+	iopipe(ipipe in, opipe out);
+
+	// Copy constructor: (detaches from / closes existing files)
+	iopipe(const iopipe& other);
+	// Assignment:       (detaches from / closes existing files)
+	iopipe& operator = (const iopipe& other);
+
+	// Creates a new pipe, and binds the ipipe and opipe objects to the read/write ends of the pipe:
+	void open();
+	// Binds the iopipe to the given input and output file descriptors:
+	void open(int in_fd, int out_fd);
+	// Detaches from / closes the files that the iopipe is bound to:
+	void close();
+	// Indicates whether the iopipe is currently bound to a set of file descriptors:
+	const bool is_open();
+
+	// Returns the ipipe this iopipe refers to:
+	const ipipe get_in();
+	// Returns the opipe this iopipe refers to:
+	const opipe get_out();
+	// Returns the input file descriptor bound to this iopipe:
+	const int in_file();
+	// Returns the output file descriptor bound to this iopipe:
+	const int out_file();
+
+	// Binds standard input to this iopipe:
+	void bind_in();
+	// Binds standard output to this iopipe:
+	void bind_out();
+
+	// Cast to an istream:
 	operator std::istream& ();
+	// Cast to an ostream:
 	operator std::ostream& ();
 
+	// Provide the stream insertion operator:
 	template <typename T>
 	std::ostream& operator << (const T& rhs) {
 		return out << rhs;
 	}
 
+	// Provide the stream extraction operator:
 	template <typename T>
 	std::istream& operator >> (T& rhs) {
 		return in >> rhs;
 	}
 
 private:
+	// The open status of the iopipe:
 	bool isOpen;
+	// The input portion of the iopipe:
 	ipipe in;
+	// The output portion:
 	opipe out;
 };
 
