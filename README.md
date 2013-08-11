@@ -8,6 +8,8 @@ Currently implemented:
  - Sketch of communication protocol with game 'Arbiter'
  - Implementation of interface for standard C++ "blockade.h", from April 2013 PHAIS
  - Nicer alternative C++ interface
+ - Linux pipe iostream-like wrapper (untested... completely...)
+ - Functor-based threading library (well stolen from another project)
  
 TODO:
  - Python interface
