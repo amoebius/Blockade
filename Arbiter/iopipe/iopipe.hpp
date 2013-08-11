@@ -22,15 +22,15 @@
  * string message;
  * myPipe >> message; // Read from a pipe.
  *
- * ipipe input = myPipe.getIn();   // Gets the object representing the input end of the pipe.
- * opipe output = myPipe.getOut(); // Gets the object representing the output end of the pipe.
+ * ipipe input = myPipe.get_in();   // Gets the object representing the input end of the pipe.
+ * opipe output = myPipe.get_out(); // Gets the object representing the output end of the pipe.
  * int input_file_descriptor = input.file(); // Gets the file descriptor.
  * int output_file_descriptor = output.file(); // ^
  * input.bind(); // Binds to stdin.
  * output.bind(); // Binds to stdout.
  *
  * See definitions below for further functionality.
- * (open(), close(), inFile(), outFile(), shared underlying streams on copying, etc.)
+ * (open(), close(), in_file(), outFile(), shared underlying streams on copying, etc.)
 
 
 
