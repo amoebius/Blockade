@@ -8,6 +8,31 @@
  * -------------------------------------------
  */
 
+/* tl;dr |
+ * -------
+ * Classes:
+ * ipipe - represents the input end of a pipe
+ * opipe - represents the output end of a pipe
+ * iopipe - represents a full pipe, and can instantiate new pipes
+ *
+ * Usage:
+ *
+ * iopipe myPipe; // Creates a new pipe.
+ * myPipe << "Hello_World!" << endl; // Write to a pipe.
+ * string message;
+ * myPipe >> message; // Read from a pipe.
+ *
+ * ipipe input = myPipe.getIn();   // Gets the object representing the input end of the pipe.
+ * opipe output = myPipe.getOut(); // Gets the object representing the output end of the pipe.
+ * int input_file_descriptor = input.file(); // Gets the file descriptor.
+ * int output_file_descriptor = output.file(); // ^
+ * input.bind(); // Binds to stdin.
+ * output.bind(); // Binds to stdout.
+ *
+ * See definitions below for further functionality (open(), close(), inFile(), outFile(), shared underlying streams on copying, etc.)
+
+
+
 /* NOTE:  (IMPORTANT)
  * This module needs a hacky method to convert a pipe file descriptor into istreams
  * ostreams, or replicate that functionality.  The author envisages two methods:
@@ -39,11 +64,14 @@ private:
 		~ipipe_ref();
 		void inc();
 		void dec();
+		const int file();
 
 		template <typename T>
 		std::istream& operator >> (T& rhs) {
 			return stream >> rhs;
 		}
+
+		operator std::istream& ();
 
 	private:
 		int instances, fd;
@@ -59,6 +87,10 @@ public:
 	~ipipe();
 	void open(int fd);
 	void close();
+	void bind();
+	const int file();
+
+	operator std::istream& ();
 
 	template <typename T>
 	std::istream& operator >> (T& rhs) {
@@ -81,11 +113,14 @@ private:
 		~opipe_ref();
 		void inc();
 		void dec();
+		const int file();
 
 		template <typename T>
 		std::ostream& operator << (const T& rhs) {
 			return stream << rhs;
 		}
+
+		operator std::ostream& ();
 
 	private:
 		int instances, fd;
@@ -101,6 +136,10 @@ public:
 	~opipe();
 	void open(int fd);
 	void close();
+	void bind();
+	const int file();
+
+	operator std::ostream& ();
 
 	template <typename T>
 	std::ostream& operator << (const T& rhs) {
@@ -124,9 +163,14 @@ public:
 	iopipe& operator = (const iopipe& other);
 	const ipipe getIn();
 	const opipe getOut();
+	const int inFile();
+	const int outFile();
 	void open();
 	void open(int in_fd, int out_fd);
 	void close();
+
+	operator std::istream& ();
+	operator std::ostream& ();
 
 	template <typename T>
 	std::ostream& operator << (const T& rhs) {

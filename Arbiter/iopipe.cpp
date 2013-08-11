@@ -44,6 +44,14 @@ void ipipe::ipipe_ref::dec() {
 	if(!instances) delete this;
 }
 
+ipipe::ipipe_ref::operator std::istream& () {
+	return stream;
+}
+
+const int ipipe::ipipe_ref::file() {
+	return fd;
+}
+
 
 // opipe_ref
 
@@ -61,6 +69,14 @@ void opipe::opipe_ref::inc() {
 void opipe::opipe_ref::dec() {
 	--instances;
 	if(!instances) delete this;
+}
+
+opipe::opipe_ref::operator std::ostream& () {
+	return stream;
+}
+
+const int opipe::opipe_ref::file() {
+	return fd;
 }
 
 
@@ -92,6 +108,18 @@ void ipipe::open(int fd) {
 
 void ipipe::close() {
 	pipe->dec();
+}
+
+ipipe::operator std::istream& () {
+	return *pipe;
+}
+
+const int ipipe::file() {
+	return pipe->file();
+}
+
+void ipipe::bind() {
+	dup2(pipe->file(), STDIN_FILENO);
 }
 
 
@@ -127,6 +155,18 @@ void opipe::close() {
 		pipe = NULL;
 		isOpen = false;
 	}
+}
+
+opipe::operator std::ostream& () {
+	return *pipe;
+}
+
+const int opipe::file() {
+	return pipe->file();
+}
+
+void opipe::bind() {
+	dup2(pipe->file(), STDOUT_FILENO);
 }
 
 
@@ -178,4 +218,18 @@ iopipe& iopipe::operator = (const iopipe& other) {
 	out = other.out;
 	isOpen = other.isOpen;
 	return *this;
+}
+
+iopipe::operator std::istream& () {
+	return in;
+}
+iopipe::operator std::ostream& () {
+	return out;
+}
+
+const int iopipe::inFile() {
+	return in.file();
+}
+const int iopipe::outFile() {
+	return out.file();
 }
