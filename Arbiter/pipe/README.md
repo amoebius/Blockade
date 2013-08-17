@@ -28,9 +28,9 @@ This module is designed to conveniently wrap the functionality of unix pipes int
  - Different file descriptors can be opened, and the iopipe can be 'closed'.
  - The ipipe and opipe ends can be specified, allowing the iopipe to reference different pipes internally.
  - In short:
-  - Creates pipes (providing ipipe and opipe ends).
-  - Allows '<<' and '>>'.
-  - Can reference different pipes for input and output.
+   - Creates pipes (providing ipipe and opipe ends).
+   - Allows '<<' and '>>'.
+   - Can reference different pipes for input and output.
   
 - duopipe
  - Represents a two-pipe interface that allows communication between to 'ends'.
