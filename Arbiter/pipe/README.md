@@ -24,13 +24,11 @@ This module is designed to conveniently wrap the functionality of unix pipes int
 - iopipe
  - Represents both a read and a write end of some unix pipe.
  - Maintains an internal ipipe and opipe.
- - The default constructor will instantiate a new pipe, binding both ends to the iopipe.
+ - The default constructor will instantiate a new pipe, creating ipipe and opipe ends bound to the iopipe.
  - Different file descriptors can be opened, and the iopipe can be 'closed'.
  - The ipipe and opipe ends can be specified, allowing the iopipe to reference different pipes internally.
- - In short:
-   - Creates pipes (providing ipipe and opipe ends).
-   - Allows '<<' and '>>'.
-   - Can reference different pipes for input and output.
+ - Allows stream insertion and extraction (i.e. supports '<<' and '>>').
+ - Can reference different pipes for input and output, allowing it to represent a read-write interface.
   
 - duopipe
  - Represents a two-pipe interface that allows communication between to 'ends'.
