@@ -60,7 +60,6 @@ namespace pipe {
 	const ipipe& iopipe::get_in() const {
 		return in;
 	}
-
 	// Returns an opipe bound to the output file the pipe employs:
 	const opipe& iopipe::get_out() const {
 		return out;
@@ -96,9 +95,17 @@ namespace pipe {
 	iopipe::operator std::istream& () const {
 		return in;
 	}
-
 	// Cast to an ostream by casting the bound opipe to an ostream:
 	iopipe::operator std::ostream& () const {
+		return out;
+	}
+
+	// Cast to an ipipe by returning the input end of this iopipe:
+	iopipe::operator ipipe () const {
+		return in;
+	}
+	// Cast to an opipe by returning the output end of the iopipe:
+	iopipe::operator opipe () const {
 		return out;
 	}
 
@@ -106,7 +113,6 @@ namespace pipe {
 	const int iopipe::in_file() const {
 		return in.file();
 	}
-
 	// Return the output file descriptor:
 	const int iopipe::out_file() const {
 		return out.file();
@@ -121,9 +127,13 @@ namespace pipe {
 	void iopipe::bind_in() {
 		in.bind();
 	}
-
 	// Bind standard output to the output of this iopipe by invoking the opipe's own 'bind' method:
 	void iopipe::bind_out() {
+		out.bind();
+	}
+	// Binds both standard input and standard output to this pipe:
+	void iopipe::bind() {
+		in.bind();
 		out.bind();
 	}
 

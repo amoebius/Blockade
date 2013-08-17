@@ -104,11 +104,18 @@ namespace pipe {
 		void bind_in();
 		// Binds standard output to this iopipe:
 		void bind_out();
+		// Binds standard input and standard output to this iopipe:
+		void bind();
 
 		// Cast to an istream:
 		operator std::istream& () const;
 		// Cast to an ostream:
 		operator std::ostream& () const;
+
+		// Cast to an ipipe:
+		operator ipipe () const;
+		// Cast to an opipe:
+		operator opipe () const;
 
 		// Provide the stream insertion operator:
 		template <typename T>
