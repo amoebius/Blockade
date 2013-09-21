@@ -36,14 +36,12 @@ int main(int argc, char* argv[]) {
 	iopipe p;
 	ipipe a = p;
 	opipe b = p;
+	a.bind();
 	try {
 		b << "HEY";
 	} catch ios_base::failure e {
 		cout << e.what();
 	}
-	string q;
-	a >> q;
-	cout << q;
 	return EXIT_SUCCESS;
 
 /*
