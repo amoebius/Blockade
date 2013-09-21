@@ -19,7 +19,7 @@
 typedef __gnu_cxx::stdio_filebuf<char> fdbuffer;  // Buffer that can wrap a POSIX file descriptor.
 
 
-namespace pipe {
+namespace cpipe {
 
 	/* ipipe:
 	 * Wraps the input end of a pipe.
@@ -45,7 +45,7 @@ namespace pipe {
 
 			// Provide stream extraction operator:
 			template <typename T>
-			std::istream& operator >> (T& rhs) {
+			inline std::istream& operator >> (T& rhs) {
 				return stream >> rhs; // NB: Because reference counting, this *should* always be valid.
 			}
 
@@ -89,7 +89,7 @@ namespace pipe {
 
 		// Provide stream extraction operator:
 		template <typename T>
-		std::istream& operator >> (T& rhs) const {
+		inline std::istream& operator >> (T& rhs) const {
 			if(!isOpen) throw std::ios_base::failure("Input pipe not open.");
 			return *pipe >> rhs;  // NB: Invalid if in a closed state.
 		}

@@ -25,7 +25,7 @@
 #include "opipe.hpp"
 
 
-namespace pipe {
+namespace cpipe {
 
 	/***********************************************************************************************************/
 	/*  "opipe_ref" Implementation:                                                                            */
@@ -37,7 +37,7 @@ namespace pipe {
 	// On destruction, close the buffer and the file descriptor:
 	opipe::opipe_ref::~opipe_ref() {
 		buffer.close();
-		close(fd);
+		::close(fd);
 	}
 
 	// Increment the reference count:

@@ -19,7 +19,7 @@
 typedef __gnu_cxx::stdio_filebuf<char> fdbuffer;  // Buffer that can wrap a POSIX file descriptor.
 
 
-namespace pipe {
+namespace cpipe {
 
 	/* opipe:
 	 * Wraps the output end of a pipe.
@@ -45,7 +45,7 @@ namespace pipe {
 
 			// Provide stream insertion operator:
 			template <typename T>
-			std::ostream& operator << (const T& rhs) {
+			inline std::ostream& operator << (const T& rhs) {
 				return stream << rhs; // NB:  Because reference counting, this *should* always be valid.
 			}
 
@@ -89,7 +89,7 @@ namespace pipe {
 
 		// Provide stream insertion operator:
 		template <typename T>
-		std::ostream& operator << (const T& rhs) const {
+		inline std::ostream& operator << (const T& rhs) const {
 			if(!isOpen) throw std::ios_base::failure("Output pipe not open.");
 			return *pipe << rhs;
 		}
