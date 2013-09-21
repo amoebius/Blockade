@@ -10,12 +10,14 @@ Currently implemented:
  - Nicer alternative C++ interface
  - Linux pipe iostream-like wrapper - completed (not really tested...)
  - Functor-based threading library (well stolen from another project)
+ - Initial arbiter (does not handle subprocess errors or sandboxing)
  
 TODO:
  - Arbiter
-  - Libraries in place, straightforward implementation of protocol and game remaining.
+  - Handle subprocess errors
  - Sandboxer
-  - 'libsandbox' and 'pysandbox' appear to make this trivial - a 10-line python program that executes the specified program
+  - Apparently non-trivial!  Currently sandboxing is just ignored
+  - 'libsandbox' and 'pysandbox' are options
  - Python interface
   - Standard PHAIS interface
   - matts1 (see github user) interface
