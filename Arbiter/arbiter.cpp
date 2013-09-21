@@ -38,7 +38,7 @@ const string directions[] = { "up", "right", "down", "left" };
 const bool canReach(int x, int y, int destination_y);
 
 inline const bool outside(int x, int y) {
-	return x < 0 || y > 0 || x >= board_size || y >= board_size;
+	return x < 0 || y < 0 || x >= board_size || y >= board_size;
 }
 
 int main(int argc, char* argv[]) {
@@ -115,7 +115,7 @@ int main(int argc, char* argv[]) {
 				winner = 1 - turn;
 
 			} else {
-				cout << turn << "Moved " << directions[direction] << " to " << x << ' ' << y << endl;
+				cout << turn << " Moved " << directions[direction] << " to " << x << ' ' << y << endl;
 				if(turn) {
 					if(y == 0) {
 						game_running = false;
