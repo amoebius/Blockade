@@ -105,17 +105,17 @@ int main(int argc, char* argv[]) {
 			int x = player_x[turn] + dx[direction], y = player_y[turn] + dy[direction];
 
 			if(outside(x,y)) {
-				cout << i << " Invalid: Attempted to move " << directions[direction] << " off the board to (" << x << ", " << y << ")." << endl;
+				cout << turn << " Invalid: Attempted to move " << directions[direction] << " off the board to (" << x << ", " << y << ")." << endl;
 				game_running = false;
-				winner = 1 - i;
+				winner = 1 - turn;
 
 			} else if(blocked[y][x]) {
-				cout << i << " Invalid: Attempted to move " << directions[direction] << " into the blocked square at (" << x << ", " << y << ")." << endl;
+				cout << turn << " Invalid: Attempted to move " << directions[direction] << " into the blocked square at (" << x << ", " << y << ")." << endl;
 				game_running = false;
-				winner = 1 - i;
+				winner = 1 - turn;
 
 			} else {
-				cout << i << "Moved " << directions[direction] << " to " << x << ' ' << y << endl;
+				cout << turn << "Moved " << directions[direction] << " to " << x << ' ' << y << endl;
 				if(i) {
 					if(y == 0) {
 						game_running = false;
@@ -135,25 +135,25 @@ int main(int argc, char* argv[]) {
 			bot[turn] >> x >> y;
 
 			if(blocked[y][x]) {
-				cout << i << " Invalid: Square (" << x << ", " << y << ") is already blocked." << endl;
+				cout << turn << " Invalid: Square (" << x << ", " << y << ") is already blocked." << endl;
 				game_running = false;
-				winner = 1 - i;
+				winner = 1 - turn;
 
 			} else {
 				blocked[y][x] = true;
 				if(canReach(player_x[0], player_y[0], board_size-1) && canReach(player_x[1], player_y[1], 0)) {
-					cout << i << " Blocked " << x << ' ' << y << endl;
+					cout << turn << " Blocked " << x << ' ' << y << endl;
 				} else {
-					cout << i << " Invalid: Blocking square (" << x << ", " << y << ") blocks the path of a player." << endl;
+					cout << turn << " Invalid: Blocking square (" << x << ", " << y << ") blocks the path of a player." << endl;
 					game_running = false;
-					winner = 1 - i;
+					winner = 1 - turn;
 				}
 			}
 
 		} else if(response == str_nothing) {
-			cout << i << " Invalid: No move provided." << endl;
+			cout << turn << " Invalid: No move provided." << endl;
 			game_running = false;
-			winner = 1 - i;
+			winner = 1 - turn;
 
 		} else {
 			cout << "-1 Error: Invalid move response given - '" << response << "'." << endl;
@@ -163,7 +163,7 @@ int main(int argc, char* argv[]) {
 		turn = 1 - turn;
 	}
 
-	cout << i << " Wins" << endl;
+	cout << turn << " Wins" << endl;
 	return EXIT_SUCCESS;
 }
 
