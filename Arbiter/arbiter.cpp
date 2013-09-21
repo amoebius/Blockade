@@ -9,13 +9,26 @@
  * -------------------------------------------
  */
 
-#include <cstddef>
+#include <cstdlib>
 #include <iostream>
 #include <string>
 using namespace std;
 
 #include "arbiter.hpp"
-#include "iopipe.hpp"
+#include "iopipe/iopipe.hpp"
+#include "ChildProcess.hpp"
+#include "threading/threading.hpp"
+#include "threading/atomic.hpp"
+
+class Bot {
+
+
+
+private:
+	iopipe pipe;
+
+}
+
 
 
 int main(int argc, char* argv[]) {
@@ -30,7 +43,8 @@ int main(int argc, char* argv[]) {
 		return EXIT_FAILURE;
 	}
 
-	int pipes[2][2][2];
+	iopipe bot[2] = {ChildProcess::Create(programs[0]), ChildProcess::Create(programs[1])};
+
 
 
 
