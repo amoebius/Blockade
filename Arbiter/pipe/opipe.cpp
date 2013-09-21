@@ -86,7 +86,8 @@ namespace cpipe {
 	opipe& opipe::operator = (const opipe& other) {
 		close();
 		pipe = other.pipe;
-		pipe->inc();
+		isOpen = other.isOpen;
+		if(isOpen) pipe->inc();
 	}
 
 	// Destructor - close any current file:
