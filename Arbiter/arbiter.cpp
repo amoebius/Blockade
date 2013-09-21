@@ -36,7 +36,11 @@ int main(int argc, char* argv[]) {
 	iopipe p;
 	ipipe a = p;
 	opipe b = p;
-	b << "HEY";
+	try {
+		b << "HEY";
+	} catch ios_base::failure e {
+		cout << e.what();
+	}
 	string q;
 	a >> q;
 	cout << q;
