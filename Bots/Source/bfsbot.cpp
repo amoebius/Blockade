@@ -32,7 +32,7 @@ int dx[] = {0, 1, 0, -1};
 int dy[] = {-1, 0, 1, 0};
 
 void clientRegister() {
-	setName("IterationZero_mb");
+	setName("BFS_Bot");
 	setColour(200,70,255);
 }
 

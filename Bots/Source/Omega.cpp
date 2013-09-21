@@ -34,7 +34,7 @@ int dx[] = {0, 1, 0, -1, 1, -1, 1, -1};
 int dy[] = {-1, 0, 1, 0, 1, 1, -1, -1};
 
 void clientRegister() {
-	setName("Moebius_Omega");
+	setName("Omega");
 	srand(time(NULL));
 	setColour(rand()%255,rand()%255,255);
 }
