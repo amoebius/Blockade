@@ -6,17 +6,17 @@
   modify it under the terms of the GNU Library General Public
   License as published by the Free Software Foundation; either
   version 2 of the License, or (at your option) any later version.
-  
+
   This library is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
   Library General Public License for more details.
-    
+
   You should have received a copy of the GNU Library General Public
   License along with this library; if not, write to the
   Free Software Foundation, Inc., 59 Temple Place - Suite 330,
   Boston, MA  02111-1307, USA.
-      
+
   Or go to http://www.gnu.org/copyleft/lgpl.html
 */
 
@@ -37,13 +37,13 @@ static unsigned  __stdcall threadfunc(void *arg)
 {
     void *(*func) (void *);
     void *args;
-    
+
     func = ((ThreadParms *)arg)->func;
     args = ((ThreadParms *)arg)->arg;
     /* any thread specific data goes here since we are now running in the new thread */
     (void)htThreadSetKeyData(prioritykey, (void *)((ThreadParms *)arg)->priority);
     free(arg);
-    
+
     return (unsigned)((*func)(args));
 }
 #if defined (_WIN32_WCE)
@@ -54,7 +54,8 @@ static unsigned  __stdcall threadfunc(void *arg)
 		       flags, \
 		       pid) \
 	CreateThread(security, \
-		     stack_size, \
+		     stack_size, \// Hack to fix things:
+#define SetLastError(...)
 		     (LPTHREAD_START_ROUTINE) start_proc, \
 		     arg, \
 		     flags, \
@@ -66,6 +67,9 @@ static unsigned  __stdcall threadfunc(void *arg)
 #else /* !HT_WIN_THREADS */
 /* POSIX systems */
 
+// Hack to fix things:
+#define SetLastError(...)
+
 typedef struct {
     void *(*func) (void *);
     void *arg;
@@ -76,13 +80,13 @@ static void *threadfunc(void *arg)
 {
     void *(*func) (void *);
     void *args;
-    
+
     func = ((ThreadParms *)arg)->func;
     args = ((ThreadParms *)arg)->arg;
     /* any thread specific data goes here since we are now running in the new thread */
     (void)htThreadSetKeyData(prioritykey, (void *)((ThreadParms *)arg)->priority);
     free(arg);
-    
+
     return ((*func)(args));
 }
 
@@ -127,14 +131,14 @@ HL_EXP HThreadID HL_APIENTRY htThreadCreate(HThreadFunc func, void *data, int jo
         (void)CloseHandle(tid);
         return NULL;
     }
-    
+
     /* POSIX systems */
 #else
     pthread_attr_t  attr;
     pthread_t       tid;
     int             result;
     ThreadParms     *p;
-    
+
     if(prioritykey == KEY_NULL)
     {
         prioritykey = htThreadNewKey();
@@ -151,7 +155,7 @@ HL_EXP HThreadID HL_APIENTRY htThreadCreate(HThreadFunc func, void *data, int jo
     p = (ThreadParms *)malloc(sizeof(ThreadParms));
     if(p == NULL)
     {
-        SetLastError((DWORD)ENOMEM);
+        SetLastError((unsigned long)ENOMEM);
         return (HThreadID)HT_INVALID;
     }
     p->func = func;
@@ -183,7 +187,7 @@ HL_EXP void HL_APIENTRY htThreadYield(void)
     /* POSIX systems */
 #else
     (void)sched_yield();
-    
+
 #endif
 }
 
@@ -243,7 +247,7 @@ HL_EXP int HL_APIENTRY htThreadEqual(HThreadID threadID1, HThreadID threadID2)
     return (int)(threadID1 == threadID2);
 #else
     /* POSIX systems */
-    return (int)pthread_equal(threadID1, threadID2);
+    return (int)pthread_equal((pthread_t)threadID1, (pthread_t)threadID2);
 #endif
 }
 
@@ -367,7 +371,7 @@ HL_EXP HTkey HL_APIENTRY htThreadNewKey(void)
     }
 #else
     /* POSIX systems */
-    pthread_key_t *key = malloc(sizeof(pthread_key_t));
+    pthread_key_t *key = (pthread_key_t*)malloc(sizeof(pthread_key_t));
 
     if(key == NULL)
     {
