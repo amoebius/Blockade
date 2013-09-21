@@ -33,7 +33,7 @@ ChildProcess::ChildProcess(const ChildProcess& other) : filename(other.filename)
 }
 
 ChildProcess& ChildProcess::operator = (const ChildProcess& other) {
-	filename = other.filename;
+	(string &)(const string &)filename = other.filename; // Yes this is really dodgy, but it's semantic...
 	pid = other.pid;
 	pipe = other.pipe;
 	instances = other.instances;

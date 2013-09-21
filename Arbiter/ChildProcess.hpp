@@ -17,7 +17,7 @@
 #include <unistd.h>
 #include <string>
 #include <cstddef>
-using namespace pipe;
+using namespace cpipe;
 
 class ChildProcess {
 
@@ -31,10 +31,21 @@ public:
 	operator const iopipe&() const;
 	const bool is_open() const;
 
-	const mutable std::string filename;
+	const std::string filename;
+
+	template <typename T>
+	inline std::istream& operator >> (T& rhs) {
+		return pipe >> rhs;
+	}
+
+	template <typename T>
+	inline std::ostream& operator << (T& rhs) {
+		return pipe << rhs;
+	}
+
 
 private:
-	void close() const;
+	void close();
 
 	pid_t pid;
 	iopipe pipe;
