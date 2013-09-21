@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
 	int turn = 0;
 
 	string names[2];
-	fo(i,2) bot[i] >> names[i];
+	fo(i,2) getline((istream&)bot[i], names[i]);
 
 	int color_red[2], color_green[2], color_blue[2];
 	fo(i,2) bot[i] >> color_red[i] >> color_green[i] >> color_blue[i];
