@@ -120,9 +120,9 @@ namespace cpipe {
 		return pipe->file();
 	}
 
-	// Binds standard output to this file descriptor - straightforward invokation of the 'dup2' api method:
+	// Binds standard input to this file descriptor - straightforward invokation of the 'dup2' api method:
 	void opipe::bind() {
-		dup2(pipe->file(), STDOUT_FILENO);
+		dup2(pipe->file(), STDIN_FILENO);
 		close();
 	}
 
