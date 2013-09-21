@@ -84,6 +84,8 @@ int main(int argc, char* argv[]) {
 	cout << names[0] << " versus " << names[1] << endl;
 	fo(i,2) cout << i << " RGB " << color_red[i] << ' ' << color_green[i] << ' ' << color_blue[i] << endl;
 
+	fo(i,2) fo(j,2) bot[i] << str_move << ' ' << j << ' ' << player_x[j] << ' ' << player_y[j] << endl;
+
 	bool game_running = true;
 	int winner;
 	while(game_running) {
