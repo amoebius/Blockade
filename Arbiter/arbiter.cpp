@@ -10,7 +10,6 @@
  */
 
 #include <cstdlib>
-#include <ctime>
 #include <iostream>
 #include <string>
 #include <algorithm>
@@ -63,9 +62,6 @@ int main(int argc, char* argv[]) {
 		return EXIT_FAILURE;
 	}
 
-
-	srand(time(NULL));
-	if(rand() % 2) swap(programs[0], programs[1]);
 
 	ChildProcess bot[2] = { ChildProcess(programs[0]), ChildProcess(programs[1]) };
 	int player_id[2], player_x[2], player_y[2];
