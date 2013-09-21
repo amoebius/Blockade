@@ -38,6 +38,7 @@ ChildProcess& ChildProcess::operator = (const ChildProcess& other) {
 	pipe = other.pipe;
 	instances = other.instances;
 	++(*instances);
+	return *this;
 }
 
 ChildProcess::~ChildProcess() {
