@@ -34,9 +34,11 @@ int main(int argc, char* argv[]) {
 	}
 
 	iopipe p;
-	p << "HEY";
+	ipipe a = p;
+	opipe b = p;
+	b << "HEY";
 	string q;
-	p >> q;
+	a >> q;
 	cout << q;
 	return EXIT_SUCCESS;
 
