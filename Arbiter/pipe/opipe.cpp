@@ -23,6 +23,7 @@
 
 
 #include "opipe.hpp"
+#include <unistd.h>
 
 
 namespace cpipe {
