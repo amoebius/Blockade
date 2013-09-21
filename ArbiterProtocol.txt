@@ -8,7 +8,7 @@
 >> X >> Y // for PID 0
 >> X >> Y // for PID 1
 
-// NB: 'Name' is most 20 characters long, and can contain alphanumeric characters, spaces, and underscores.
+// NB: 'Name' is most 20 characters long, and can contain only alphanumeric characters and underscores.
 
 
 

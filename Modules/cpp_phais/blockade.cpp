@@ -42,7 +42,7 @@ int main() {
 	// Search for invalid characters, and if they exist, truncate the name:
 	for(int i=0; i<maxLen; ++i) {
 		char test = player_name[i];
-		if(!isalnum(test) && test != ' ' && test != '_') {
+		if(!isalnum(test) && test != '_') {
 			// Invalid character, truncate:
 			maxLen = i;
 			break;
