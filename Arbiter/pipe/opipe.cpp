@@ -123,6 +123,7 @@ namespace cpipe {
 	// Binds standard output to this file descriptor - straightforward invokation of the 'dup2' api method:
 	void opipe::bind() {
 		dup2(pipe->file(), STDOUT_FILENO);
+		close();
 	}
 
 	// Returns the open status of the opipe:
