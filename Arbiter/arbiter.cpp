@@ -125,6 +125,8 @@ int main(int argc, char* argv[]) {
 				}
 				player_x[turn] = x;
 				player_y[turn] = y;
+
+				fo(i,2) bot[i] << str_move << ' ' << turn << ' ' << x << ' ' << y << endl;
 			}
 
 		} else if(response == str_block) {
@@ -141,6 +143,7 @@ int main(int argc, char* argv[]) {
 				blocked[y][x] = true;
 				if(canReach(player_x[0], player_y[0], board_size-1) && canReach(player_x[1], player_y[1], 0)) {
 					cout << turn << " Blocked " << x << ' ' << y << endl;
+					fo(i,2) bot[i] << str_block << ' ' << turn << ' ' << x << ' ' << y << endl;
 				} else {
 					cout << turn << " Invalid: Blocking square (" << x << ", " << y << ") blocks the path of a player." << endl;
 					game_running = false;
