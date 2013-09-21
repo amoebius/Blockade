@@ -11,14 +11,14 @@
 #include "iopipe.hpp"
 #include "duopipe.hpp"
 
-namespace pipe {
+namespace cpipe {
 
 	/***********************************************************************************************************/
 	/*  "duopipe" Implementation:                                                                               */
 	/***********************************************************************************************************/
 
 	// Instantiates two new pipes and builds a duopipe from them:
-	duopipe::duopipe() : _front(int), _back(int) { // Don't create unnecessary pipes.
+	duopipe::duopipe() : _front(0), _back(0) { // Don't create unnecessary pipes.
 		// Create two new pipes:
 		iopipe a,b;
 		// Bind front to the read and write ends of a and b respectively:
@@ -49,11 +49,11 @@ namespace pipe {
 	}
 
 	// Binds stdin and stdout to the front end of the duopipe:
-	void bind_front() {
+	void duopipe::bind_front() {
 		_front.bind();
 	}
 	// Binds stdin and stdout to the back end of the duopipe:
-	void bind_back() {
+	void duopipe::bind_back() {
 		_back.bind();
 	}
 

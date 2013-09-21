@@ -15,7 +15,7 @@
 #include "iopipe.hpp"
 
 
-namespace pipe {
+namespace cpipe {
 
 	/* duopipe:
 	 * Wraps two pipes into a 'front' and 'back' end.

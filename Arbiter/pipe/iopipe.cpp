@@ -25,7 +25,7 @@
 #include "iopipe.hpp"
 
 
-namespace pipe {
+namespace cpipe {
 
 	/***********************************************************************************************************/
 	/*  "iopipe" Implementation:                                                                               */

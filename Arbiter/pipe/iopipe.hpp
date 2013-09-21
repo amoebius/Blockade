@@ -57,7 +57,7 @@
 #include "opipe.hpp"
 
 
-namespace pipe {
+namespace cpipe {
 
 	/* iopipe:
 	 * Constructs pipes and corresponding ipipe and opipe objects, providing stream-like
@@ -119,13 +119,13 @@ namespace pipe {
 
 		// Provide the stream insertion operator:
 		template <typename T>
-		std::ostream& operator << (const T& rhs) const {
+		inline std::ostream& operator << (const T& rhs) const {
 			return out << rhs;
 		}
 
 		// Provide the stream extraction operator:
 		template <typename T>
-		std::istream& operator >> (T& rhs) const {
+		inline std::istream& operator >> (T& rhs) const {
 			return in >> rhs;
 		}
 
