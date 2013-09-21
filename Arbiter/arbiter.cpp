@@ -116,7 +116,7 @@ int main(int argc, char* argv[]) {
 
 			} else {
 				cout << turn << "Moved " << directions[direction] << " to " << x << ' ' << y << endl;
-				if(i) {
+				if(turn) {
 					if(y == 0) {
 						game_running = false;
 						winner = 1;
