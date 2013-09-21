@@ -127,6 +127,8 @@ int main(int argc, char* argv[]) {
 						winner = 0;
 					}
 				}
+				player_x[turn] = x;
+				player_y[turn] = y;
 			}
 
 		} else if(response == str_block) {
