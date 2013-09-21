@@ -123,11 +123,11 @@ namespace cpipe {
 		return isOpen;
 	}
 
-	// Bind standard output to the input of this iopipe by invoking the ipipe's own 'bind' method:
+	// Bind standard input to the input of this iopipe by invoking the ipipe's own 'bind' method:
 	void iopipe::bind_in() {
 		in.bind();
 	}
-	// Bind standard input to the output of this iopipe by invoking the opipe's own 'bind' method:
+	// Bind standard output to the output of this iopipe by invoking the opipe's own 'bind' method:
 	void iopipe::bind_out() {
 		out.bind();
 	}
