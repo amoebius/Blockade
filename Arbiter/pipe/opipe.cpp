@@ -91,7 +91,6 @@ namespace cpipe {
 
 	// Destructor - close any current file:
 	opipe::~opipe() {
-		throw std::ios_base::failure("We're in a destructor!!\n");
 		close();
 	}
 
