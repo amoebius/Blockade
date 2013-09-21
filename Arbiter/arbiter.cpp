@@ -15,38 +15,48 @@
 using namespace std;
 
 #include "arbiter.hpp"
-#include "iopipe/iopipe.hpp"
+#include "pipe/duopipe.hpp"
 #include "ChildProcess.hpp"
 #include "threading/threading.hpp"
 #include "threading/atomic.hpp"
-
-class Bot {
-
-
-
-private:
-	iopipe pipe;
-
-}
-
 
 
 int main(int argc, char* argv[]) {
 
 	string programs[2];
-	if(argc == 1) {
-		programs[0] = programs[1] = argv[0];
-	} else if(argc == 2) {
-		for(int i=0; i<2; ++i) programs[i] = argv[i];
+	if(argc == 2) {
+		programs[0] = programs[1] = argv[1];
+	} else if(argc == 3) {
+		for(int i=0; i<2; ++i) programs[i] = argv[i+1];
 	} else {
 		cerr << "Invalid number of arguments specified.  Usage:\n" << "arbiter first_bot_location [second_bot_location]\n";
 		return EXIT_FAILURE;
 	}
 
-	iopipe bot[2] = {ChildProcess::Create(programs[0]), ChildProcess::Create(programs[1])};
+	iopipe p;
+	p << "HEY";
+	string q;
+	p >> q;
+	cout << q;
+	return EXIT_SUCCESS;
 
+/*
+	duopipe s;
+	s.bind_front();
+	iopipe t = s.back();
+	string r;
+	t << "enter: ";
+	return EXIT_SUCCESS;
 
-
+	ChildProcess bots[2] = {ChildProcess(programs[0]), ChildProcess(programs[1])};
+	string res;
+	bots[0] << "HELLO";
+	bots[0] >> res;
+	cout << res << "\n";
+	bots[1] << "WORLD";
+	bots[1] >> res;
+	cout << res << "\n";
 
 	return EXIT_SUCCESS;
+*/
 }

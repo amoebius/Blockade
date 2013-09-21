@@ -7,3 +7,11 @@
  * Author:  James Payor (github.com/amoebius)
  * -------------------------------------------
  */
+
+#ifndef __ARBITER_HPP
+#define __ARBITER_HPP
+
+
+
+
+#endif //__ARBITER_HPP
