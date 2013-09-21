@@ -67,9 +67,6 @@ static unsigned  __stdcall threadfunc(void *arg)
 #else /* !HT_WIN_THREADS */
 /* POSIX systems */
 
-// Hack to fix things:
-#define SetLastError(...)
-
 typedef struct {
     void *(*func) (void *);
     void *arg;
@@ -247,7 +244,7 @@ HL_EXP int HL_APIENTRY htThreadEqual(HThreadID threadID1, HThreadID threadID2)
     return (int)(threadID1 == threadID2);
 #else
     /* POSIX systems */
-    return (int)pthread_equal((pthread_t)threadID1, (pthread_t)threadID2);
+    return (int)pthread_equal(threadID1, threadID2);
 #endif
 }
 
