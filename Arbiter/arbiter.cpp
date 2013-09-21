@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
 	a.bind();
 	try {
 		b << "HEY";
-	} catch ios_base::failure e {
+	} catch (ios_base::failure e) {
 		cout << e.what();
 	}
 	return EXIT_SUCCESS;
