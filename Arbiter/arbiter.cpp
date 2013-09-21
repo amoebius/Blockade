@@ -33,7 +33,7 @@ const int UP = 0, RIGHT = 1, DOWN = 2, LEFT = 3;
 const int dx[] = {0, 1, 0, -1}, dy[] = {-1, 0, 1, 0};
 
 const string str_turn = "turn", str_move = "move", str_block = "block", str_nothing = "nothing";
-const string directions = { "up", "right", "down", "left" };
+const string directions = { string("up"), string("right"), string("down"), string("left") };
 
 const bool canReach(int x, int y, int destination_y);
 
