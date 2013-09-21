@@ -16,6 +16,7 @@
 using namespace std;
 
 #include "blockade.h"
+#include "ioblock.h"
 
 // Command strings:
 static const string str_move("move"), str_block("block"), str_turn("turn"), str_end("end"), str_nothing("nothing");
@@ -31,7 +32,9 @@ static int playerMove, moveDir, moveX, moveY;
 
 int main() {
 	// Allow the client to set a name and colour:
+	ioblock();
 	clientRegister();
+	iounblock();
 
 	// Limit the name length:
 	int maxLen = min<int>(20, player_name.size());
@@ -61,7 +64,9 @@ int main() {
 	int dummy;
 	for(int i=0; i<2; ++i) cin >> dummy >> dummy; // Burn up the input of initial coordinates.
 
+	ioblock();
 	clientInit(boardSize, myPID);
+	iounblock();
 
 	// Main command loop:
 	while (true) {
@@ -74,18 +79,27 @@ int main() {
 			// Update the player position:
 			int playerID, x, y;
 			cin >> playerID >> x >> y;
+
+			ioblock();
 			clientPlayerPosition(playerID, x, y);
+			iounblock();
 
 		} else if (command == str_block) {
 			// Block the square:
 			int playerID, x, y;
 			cin >> playerID >> x >> y;
+
+			ioblock();
 			clientSquareIsBlocked(playerID, x, y);
+			iounblock();
 
 		} else if (command == str_turn) {
 			// Make a move:
 			playerMove = nothing;
+
+			ioblock();
 			clientDoTurn();
+			iounblock();
 
 			if(playerMove == moving) {
 				cout << str_move << ' ' << moveDir << endl;
