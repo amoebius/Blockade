@@ -41,14 +41,14 @@ int main() {
 		// pid:
 		int pid;
 		cin >> pid >> data;
-		cout << data << endl;
+
 		if(data == "wins") {
 			cout << names[pid] << " (" << pid << ") wins!" << endl << endl;
 			return 0;
 		} else if(data == "moved") {
 			string dir;
 			// dir to x y:
-			cin >> dir >> px[pid] >> py[pid];
+			cin >> dir >> data >> px[pid] >> py[pid];
 		} else if(data == "blocked") {
 			// x y:
 			int x,y;
@@ -69,10 +69,10 @@ void display() {
 	cout << names[0] << " (0) versus " << names[1] << " (1):" << endl;
 	for(int y = 0; y < size; ++y) {
 		for(int x = 0; x < size; ++x) {
-			if(y==py[0]&&x==px[0]) cout << '0';
-			else if(y==py[1]&&x==px[1]) cout << '1';
-			else if(blocked[y][x]) cout << 'X';
-			else cout << '.';
+			if(y==py[0]&&x==px[0]) cout << "0 ";
+			else if(y==py[1]&&x==px[1]) cout << "1 ";
+			else if(blocked[y][x]) cout << "X ";
+			else cout << ". ";
 		}
 		cout << '\n';
 	}
