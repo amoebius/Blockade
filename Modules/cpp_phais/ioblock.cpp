@@ -14,6 +14,7 @@
 #include "ioblock.h"
 #include <iostream>
 #include <unistd.h>
+#include <ext/stdio_filebuf.h> // NB: Non-standard.
 
 
 // Buffers that can wrap a POSIX file descriptor:
