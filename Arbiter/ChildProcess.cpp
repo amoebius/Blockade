@@ -34,6 +34,8 @@ ChildProcess::ChildProcess(const ChildProcess& other) : filename(other.filename)
 }
 
 ChildProcess& ChildProcess::operator = (const ChildProcess& other) {
+	--(*instances);
+	if(!instances) close();
 	(string &)(const string &)filename = other.filename; // Yes this is really dodgy, but it's semantic...
 	pid = other.pid;
 	pipe = other.pipe;
@@ -64,7 +66,7 @@ const bool ChildProcess::is_open() const {
 }
 
 void ChildProcess::close() {
-	if(!is_open()) {
+	if(is_open()) {
 		pipe.close();
 		kill(pid, SIGKILL);
 	}
