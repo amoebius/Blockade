@@ -41,7 +41,7 @@ int main() {
 		// pid:
 		int pid;
 		cin >> pid >> data;
-
+		cout << data << endl;
 		if(data == "wins") {
 			cout << names[pid] << " (" << pid << ") wins!" << endl << endl;
 			return 0;
