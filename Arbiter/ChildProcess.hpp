@@ -24,6 +24,7 @@ class ChildProcess {
 public:
 	explicit ChildProcess(std::string filename, char * const argv[] = NULL);
 	ChildProcess(const ChildProcess& other);
+	ChildProcess();
 	ChildProcess& operator = (const ChildProcess& other);
 	~ChildProcess();
 	pid_t getPID() const;
