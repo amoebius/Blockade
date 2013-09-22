@@ -166,7 +166,7 @@ int main(int argc, char* argv[]) {
 		turn = 1 - turn;
 	}
 
-	cout << turn << " Wins" << endl;
+	cout << winner << " Wins" << endl;
 
 	fo(i,2) bot[i] << str_end << endl;
 
