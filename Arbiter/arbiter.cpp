@@ -81,8 +81,7 @@ int main(int argc, char* argv[]) {
 	fo(i,2) bot[i] << board_size << ' ' << i << endl;
 	fo(i,2) fo(j,2) bot[i] << player_x[j] << ' ' << player_y[j] << endl;
 
-	cout << names[0] << " versus " << names[1] << endl;
-	cout << "Size " << board_size << endl;
+	cout << names[0] << " versus " << names[1] << " size " << board_size << endl;
 	fo(i,2) cout << i << " starts at " << player_x[i] << ' ' << player_y[i] << endl;
 	fo(i,2) cout << i << " RGB " << color_red[i] << ' ' << color_green[i] << ' ' << color_blue[i] << endl;
 
