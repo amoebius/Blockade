@@ -21,6 +21,8 @@ ChildProcess::ChildProcess(string filename, char * const argv[]) : filename(file
 	pid = fork();
 	if(pid == 0) {
 		link.bind_back();
+		link.front().close();
+		link.back().close();
 		execv(filename.c_str(), argv);
 	}
 
