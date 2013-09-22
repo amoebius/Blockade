@@ -18,7 +18,7 @@ namespace cpipe {
 	/***********************************************************************************************************/
 
 	// Instantiates two new pipes and builds a duopipe from them:
-	duopipe::duopipe() : _front(0), _back(0) { // Don't create unnecessary pipes.
+	duopipe::duopipe() : _front(0), _back(0), isOpen(true) { // Don't create unnecessary pipes.
 		// Create two new pipes:
 		iopipe a,b;
 		// Bind front to the read and write ends of a and b respectively:
@@ -28,15 +28,16 @@ namespace cpipe {
 	}
 
 	// Reuses the pipes of another duopipe (copy constructor):
-	duopipe::duopipe(const duopipe& other) : _front(other.front()), _back(other.back()) {}
+	duopipe::duopipe(const duopipe& other) : _front(other.front()), _back(other.back()), isOpen(other.isOpen) {}
 
 	// Builds a duopipe from the front and back ends of the two specified pipes:
-	duopipe::duopipe(iopipe first, iopipe second) : _front(first, second), _back(second, first) {}
+	duopipe::duopipe(iopipe first, iopipe second) : _front(first, second), _back(second, first), isOpen(true) {}
 
 	// Reuses the pipes of another duopipe for assignment operations:
 	duopipe& duopipe::operator = (const duopipe& other) {
 		_front = other.front();
 		_back = other.back();
+		isOpen = other.isOpen;
 	}
 
 	// Returns the front end, represented as an iopipe:
@@ -55,6 +56,19 @@ namespace cpipe {
 	// Binds stdin and stdout to the back end of the duopipe:
 	void duopipe::bind_back() {
 		_back.bind();
+	}
+
+	// Indicates whether the duopipe is currently open:
+	const bool duopipe::is_open() const {
+		return isOpen;
+	}
+	// Closes both ends of the pipe:
+	void duopipe::close() {
+		if(isOpen) {
+			_front.close();
+			_back.close();
+			isOpen = false;
+		}
 	}
 
 	/***********************************************************************************************************/

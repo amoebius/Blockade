@@ -43,12 +43,18 @@ namespace cpipe {
 		// Binds stdin and stdout to the back end of the duopipe:
 		void bind_back();
 
+		// Indicates whether the duopipe is currently open:
+		const bool is_open() const;
+		// Closes both ends of the pipe:
+		void close();
+
 		// (NB:  The 'front'/'back' distinction is arbitrary, but the different ends
 		//       need to be referred to somehow...)
 
 	private:
 		// The internal front and back iopipes:
 		iopipe _front, _back;
+		bool isOpen;
 	};
 
 }
