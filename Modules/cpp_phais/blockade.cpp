@@ -31,10 +31,14 @@ static const int nothing = 0, moving = 1, blocking = 2;
 static int playerMove, moveDir, moveX, moveY;
 
 int main() {
+
+	// Initialise io blocking:
+	ioblock::init();
+
 	// Allow the client to set a name and colour:
-	ioblock();
+	ioblock::block();
 	clientRegister();
-	iounblock();
+	ioblock::unblock();
 
 	// Limit the name length:
 	int maxLen = min<int>(20, player_name.size());
@@ -64,9 +68,9 @@ int main() {
 	int dummy;
 	for(int i=0; i<2; ++i) cin >> dummy >> dummy; // Burn up the input of initial coordinates.
 
-	ioblock();
+	ioblock::block();
 	clientInit(boardSize, myPID);
-	iounblock();
+	ioblock::unblock();
 
 	// Main command loop:
 	while (true) {
@@ -80,26 +84,26 @@ int main() {
 			int playerID, x, y;
 			cin >> playerID >> x >> y;
 
-			ioblock();
+			ioblock::block();
 			clientPlayerPosition(playerID, x, y);
-			iounblock();
+			ioblock::unblock();
 
 		} else if (command == str_block) {
 			// Block the square:
 			int playerID, x, y;
 			cin >> playerID >> x >> y;
 
-			ioblock();
+			ioblock::block();
 			clientSquareIsBlocked(playerID, x, y);
-			iounblock();
+			ioblock::unblock();
 
 		} else if (command == str_turn) {
 			// Make a move:
 			playerMove = nothing;
 
-			ioblock();
+			ioblock::block();
 			clientDoTurn();
-			iounblock();
+			ioblock::unblock();
 
 			if(playerMove == moving) {
 				cout << str_move << ' ' << moveDir << endl;
