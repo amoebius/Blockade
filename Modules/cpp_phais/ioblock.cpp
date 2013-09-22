@@ -14,6 +14,7 @@
 #include "ioblock.h"
 #include <iostream>
 #include <unistd.h>
+#include <fcntl.h>
 #include <ext/stdio_filebuf.h> // NB: Non-standard.
 
 
