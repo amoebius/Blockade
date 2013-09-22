@@ -34,7 +34,7 @@ ChildProcess::ChildProcess(const ChildProcess& other) : filename(other.filename)
 }
 
 ChildProcess& ChildProcess::operator = (const ChildProcess& other) {
-	--(*instances);
+	if(is_open()) --(*instances);
 	if(!instances) close();
 	(string &)(const string &)filename = other.filename; // Yes this is really dodgy, but it's semantic...
 	pid = other.pid;
@@ -44,8 +44,10 @@ ChildProcess& ChildProcess::operator = (const ChildProcess& other) {
 	return *this;
 }
 
+ChildProcess::ChildProcess() : filename(), pid(0), pipe(0), instances(NULL) {}
+
 ChildProcess::~ChildProcess() {
-	--(*instances);
+	if(is_open()) --(*instances);
 	if(!(*instances)) close();
 }
 
