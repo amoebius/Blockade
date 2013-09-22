@@ -31,7 +31,7 @@ int board_size;
 const int UP = 0, RIGHT = 1, DOWN = 2, LEFT = 3;
 const int dx[] = {0, 1, 0, -1}, dy[] = {-1, 0, 1, 0};
 
-const string str_turn = "turn", str_move = "move", str_block = "block", str_nothing = "nothing";
+const string str_turn = "turn", str_move = "move", str_block = "block", str_nothing = "nothing", str_end = "end";
 const string directions[] = { "up", "right", "down", "left" };
 
 const bool canReach(int x, int y, int destination_y);
@@ -167,6 +167,9 @@ int main(int argc, char* argv[]) {
 	}
 
 	cout << turn << " Wins" << endl;
+
+	fo(i,2) bot[i] << str_end << endl;
+
 	return EXIT_SUCCESS;
 }
 
