@@ -82,6 +82,8 @@ int main(int argc, char* argv[]) {
 	fo(i,2) fo(j,2) bot[i] << player_x[j] << ' ' << player_y[j] << endl;
 
 	cout << names[0] << " versus " << names[1] << endl;
+	cout << "Size " << board_size << endl;
+	fo(i,2) cout << i << " starts at " << player_x[i] << ' ' << player_y[i] << endl;
 	fo(i,2) cout << i << " RGB " << color_red[i] << ' ' << color_green[i] << ' ' << color_blue[i] << endl;
 
 	fo(i,2) fo(j,2) bot[i] << str_move << ' ' << j << ' ' << player_x[j] << ' ' << player_y[j] << endl;
@@ -113,7 +115,7 @@ int main(int argc, char* argv[]) {
 				winner = 1 - turn;
 
 			} else {
-				cout << turn << " Moved " << directions[direction] << " to " << x << ' ' << y << endl;
+				cout << turn << " moved " << directions[direction] << " to " << x << ' ' << y << endl;
 				if(turn) {
 					if(y == 0) {
 						game_running = false;
@@ -144,7 +146,7 @@ int main(int argc, char* argv[]) {
 			} else {
 				blocked[y][x] = true;
 				if(canReach(player_x[0], player_y[0], board_size-1) && canReach(player_x[1], player_y[1], 0)) {
-					cout << turn << " Blocked " << x << ' ' << y << endl;
+					cout << turn << " blocked " << x << ' ' << y << endl;
 					fo(i,2) bot[i] << str_block << ' ' << turn << ' ' << x << ' ' << y << endl;
 				} else {
 					cout << turn << " Invalid: Blocking square (" << x << ", " << y << ") blocks the path of a player." << endl;
@@ -166,7 +168,7 @@ int main(int argc, char* argv[]) {
 		turn = 1 - turn;
 	}
 
-	cout << winner << " Wins" << endl;
+	cout << winner << " wins" << endl;
 
 	fo(i,2) bot[i] << str_end << endl;
 
