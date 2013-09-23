@@ -27,7 +27,7 @@ try:
 	print name
 
 except Exception as e:
-	raise RuntimeError("Error in retreiving the bot's name: " + str(e))
+	raise RuntimeError("Error in retreiving the bot's name: " + str(type(e)) + " - " + str(e))
 
 
 try:
@@ -37,7 +37,7 @@ try:
 	print '%d %d %d' % (r,g,b)
 
 except Exception as e:
-	raise RuntimeError("Error in retreiving the bot's color: " + str(e))
+	raise RuntimeError("Error in retreiving the bot's color: " + str(type(e)) + " - " + str(e))
 
 
 size, pid = map(int, raw_input().split())
@@ -71,13 +71,13 @@ while running:
 		try:
 			action = bot.move(map(list,grid), pos[pid], pos[1-pid])
 		except Exception as e:
-			raise RuntimeError("Error in retrieving the bot's move: " + str(e))
+			raise RuntimeError("Error in retrieving the bot's move: " + str(type(e)) + " - " + str(e))
 
 		if type(action) not in (str, tuple):
 			raise RuntimeError("Invalid action returned:  Action must be a string or a tuple.")
 
 		if type(action) is str:
-			if action not in moves:
+			if action not in moves[0]:
 				raise RuntimeError("Invalid movement '%s' specified.  Moves must be one of U, D, L, or R." % action)
 			
 			print "move %d" % moves[pid][action]
@@ -86,7 +86,9 @@ while running:
 			if len(action) != 2 or not all(type(i) is int for i in action):
 				raise RuntimeError("Invalid block action '%s' specified.  Block actions must be a tuple with two integers, the x and y coordinates of the square - (x, y)." % str(action))
 			
-			print "block %d %d" % action
+			x,y = action
+			if pid: y = size-1 - y
+			print "block %d %d" % (x,y)
 
 	else:
 		running = False
