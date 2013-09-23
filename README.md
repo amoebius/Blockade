@@ -18,9 +18,12 @@ TODO:
  - Arbiter
   - Handle subprocess errors, timeouts
   - Terminate excessively long games, and programs that take too long to move
+  - Capture module output, perhaps through stderr
  - Sandboxer
   - Apparently non-trivial!  Currently sandboxing is just ignored
   - 'libsandbox' and 'pysandbox' are options
+ - Python module
+  - Block stdin/stdout for userland, and/or redirect these to stderr
  - Alternative python interface?
  - Website:
   - User accounts and storage......
