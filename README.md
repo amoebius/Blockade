@@ -8,6 +8,7 @@ Currently implemented:
  - Communication protocol with game 'Arbiter'
  - Implementation of interface for standard C++ "blockade.h", from April 2013 PHAIS
  - Nicer alternative C++ interface
+ - Python interface
  - Initial arbiter (does not handle subprocess errors or sandboxing)
  - Visualiser (command-line, testing only)
  - Functor-based threading library (well stolen from another project)
@@ -20,12 +21,8 @@ TODO:
  - Sandboxer
   - Apparently non-trivial!  Currently sandboxing is just ignored
   - 'libsandbox' and 'pysandbox' are options
- - Python interface
-  - Standard PHAIS interface
-  - matts1 (see github user) interface
-  - Moebius interface
- - Website...
- - User accounts and storage......
- - Tournament system...........
- - Other languages?
- - Anything else you can think of?
+ - Alternative python interface?
+ - Website:
+  - User accounts and storage......
+  - Tournament system...........
+ - Support for other languages?
