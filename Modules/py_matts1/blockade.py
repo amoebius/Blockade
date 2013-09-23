@@ -44,11 +44,12 @@ size, pid = map(int, raw_input().split())
 x0, y0 = map(int, raw_input().split())
 x1, y1 = map(int, raw_input().split())
 
-pos = [(x0,y0), (x1,y1)]
+pos = [(x0, size-1 - y0), (x1, size-1 - y1)] if pid else [(x0,y0), (x1,y1)]
 
 grid = [[False] * size for i in range(size)]
 
-moves = dict((s,i) for i,s in enumerate('URDL'))
+moves = [dict((s,i) for i,s in enumerate('URDL')), dict((s,i) for i,s in enumerate('DRUL'))]
+
 
 running = True
 while running:
@@ -57,10 +58,12 @@ while running:
 
 	if command[0] == 'move':
 		player, x, y = map(int, command[1:])
+		if pid: y = size-1 - y
 		pos[player] = (x,y)
 
 	elif command[0] == 'block':
 		player, x, y = map(int, command[1:])
+		if pid: y = size-1 - y
 		grid[y][x] = True
 
 	elif command[0] == 'turn':
@@ -77,7 +80,7 @@ while running:
 			if action not in moves:
 				raise RuntimeError("Invalid movement '%s' specified.  Moves must be one of U, D, L, or R." % action)
 			
-			print "move %d" % moves[action]
+			print "move %d" % moves[pid][action]
 
 		else:
 			if len(action) != 2 or not all(type(i) is int for i in action):
