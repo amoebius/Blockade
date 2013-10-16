@@ -30,7 +30,7 @@
  * output.bind(); // Binds to stdout.
  *
  * See definitions below for further functionality.
- * (open(), close(), in_file(), outFile(), shared underlying streams on copying, etc.)
+ * (open(), close(), in_file(), out_file(), shared underlying streams on copying, etc.)
 
 
 
