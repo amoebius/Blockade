@@ -121,9 +121,9 @@ namespace cpipe {
 		return pipe->file();
 	}
 
-	// Binds standard input to this file descriptor - 'straightforward' invokation of the 'dup2' api method:
-	void ipipe::bind() {
-		dup2(pipe->file(), STDIN_FILENO);
+	// Binds the given file descriptor (stdin by default) to this pipe - 'straightforward' invokation of the 'dup2' api method:
+	void ipipe::bind(int fd) {
+		dup2(pipe->file(), fd);
 	}
 
 	// Returns the open status of the ipipe:

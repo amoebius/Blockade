@@ -121,9 +121,14 @@ namespace cpipe {
 		return pipe->file();
 	}
 
-	// Binds standard output to this file descriptor - 'straightforward' invokation of the 'dup2' api method:
-	void opipe::bind() {
-		dup2(pipe->file(), STDOUT_FILENO);
+	// Binds the file descriptor (by default standard output) to this pipe - 'straightforward' invokation of the 'dup2' api method:
+	void opipe::bind(int fd) {
+		dup2(pipe->file(), fd);
+	}
+
+	// Binds to stderr:
+	void opipe::bindErr() {
+		bind(STDERR_FILENO);
 	}
 
 	// Returns the open status of the opipe:
