@@ -29,8 +29,9 @@ public:
 	~ChildProcess();
 	pid_t getPID() const;
 	const iopipe& getPipe() const;
+	const ipipe& err() const;
 	operator const iopipe&() const;
-	const bool is_open() const;
+	const bool isOpen() const;
 
 	const std::string filename;
 
@@ -50,6 +51,7 @@ private:
 
 	pid_t pid;
 	iopipe pipe;
+	ipipe errPipe;
 	int *instances;
 
 };
