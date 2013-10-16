@@ -16,7 +16,7 @@
 using namespace std;
 
 #include "blockade.h"
-#include "../ioblock/ioblock.h"
+#include "../ioblock/ioblock.hpp"
 
 // Command strings:
 static const string str_move("move"), str_block("block"), str_turn("turn"), str_end("end"), str_nothing("nothing");
