@@ -1,5 +1,5 @@
 /* -------------------------------------------
- * Blockade Modules - ioblock.h
+ * Blockade Modules - ioblock.hpp
  * -------------------------------------------
  * Implements a very hacky, but very useful
  * method for blocking reading and writing to
@@ -10,12 +10,13 @@
  * -------------------------------------------
  */
 
-#ifndef __IOBLOCK_H
-#define __IOBLOCK_H
+#ifndef __IOBLOCK_HPP
+#define __IOBLOCK_HPP
 
 namespace ioblock {
 
 	void init();
+	void clean();
 	void block();
 	void unblock();
 
