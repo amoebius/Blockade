@@ -15,6 +15,7 @@
 
 
 #include <istream>
+#include <unistd.h>
 #include <ext/stdio_filebuf.h> // NB: Non-standard, see note in "iopipe.hpp".
 typedef __gnu_cxx::stdio_filebuf<char> fdbuffer;  // Buffer that can wrap a POSIX file descriptor.
 
