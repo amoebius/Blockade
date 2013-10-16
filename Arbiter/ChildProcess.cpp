@@ -54,8 +54,10 @@ ChildProcess& ChildProcess::operator = (const ChildProcess& other) {
 ChildProcess::ChildProcess() : filename(), pid(0), pipe(0), errPipe(0), instances(NULL) {}
 
 ChildProcess::~ChildProcess() {
-	if(isOpen()) --(*instances);
-	if(!(*instances)) close();
+	if(isOpen()) {
+		--(*instances);
+		if(!(*instances)) close();
+	}
 }
 
 pid_t ChildProcess::getPID() const {
