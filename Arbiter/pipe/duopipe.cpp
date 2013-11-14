@@ -35,9 +35,12 @@ namespace cpipe {
 
 	// Reuses the pipes of another duopipe for assignment operations:
 	duopipe& duopipe::operator = (const duopipe& other) {
-		_front = other.front();
-		_back = other.back();
-		isOpen = other.isOpen;
+		if(&other != this) {
+			_front = other.front();
+			_back = other.back();
+			isOpen = other.isOpen;
+		}
+		return *this;
 	}
 
 	// Returns the front end, represented as an iopipe:

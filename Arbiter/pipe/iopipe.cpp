@@ -50,9 +50,11 @@ namespace cpipe {
 
 	// Assignment - simply assign member variables to the other iopipe's members:
 	iopipe& iopipe::operator = (const iopipe& other) {
-		in = other.in;
-		out = other.out;
-		isOpen = other.isOpen;
+		if(&other != this) {
+			in = other.in;
+			out = other.out;
+			isOpen = other.isOpen;
+		}
 		return *this;
 	}
 

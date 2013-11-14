@@ -84,10 +84,13 @@ namespace cpipe {
 
 	// Assignment operator - close any current file, then update as with the copy constructor:
 	ipipe& ipipe::operator = (const ipipe& other) {
-		close();
-		pipe = other.pipe;
-		isOpen = other.isOpen;
-		if(isOpen) pipe->inc();
+		if(&other != this) {
+			close();
+			pipe = other.pipe;
+			isOpen = other.isOpen;
+			if(isOpen) pipe->inc();
+		}
+		return *this;
 	}
 
 	// Destructor - close any current file:
