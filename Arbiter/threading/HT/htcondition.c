@@ -128,7 +128,7 @@ HL_EXP int HL_APIENTRY htCondWait(HTcond *cond, HTmutex *mutex, int timeout)
         int result = 0;
 
         (void)pthread_mutex_lock((pthread_mutex_t *)mutex);
-        result = pthread_cond_wait((pthread_cond_t *)&cv->cond, mutex);
+        result = pthread_cond_wait((pthread_cond_t *)&cv->cond, (pthread_mutex_t *)mutex);
         if(result != 0)
         {
             return result;

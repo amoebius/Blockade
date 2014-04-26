@@ -52,7 +52,7 @@ namespace Threading {
 		inline void freeThis() {
 			if(--(*referenceCount) == 0) {
 				HT::Mutex::Destroy(mutex);
-				free referenceCount;
+				delete referenceCount;
 			}
 		}
 	public:
@@ -97,7 +97,7 @@ namespace Threading {
 		inline void freeThis() {
 			if(--(*referenceCount) == 0) {
 				HT::Cond::Destroy(cond);
-				free referenceCount;
+				delete referenceCount;
 			}
 		}
 	public:
@@ -189,7 +189,7 @@ namespace Threading {
 			obj->running = false;
 			bool required = obj->required;
 			obj->lock.Unlock();
-			signalFinish.Broadcast();
+			obj->signalFinish.Broadcast();
 
 			// Delete the object if the result isn't required:
 			if(!required) delete obj;
@@ -268,7 +268,7 @@ namespace Threading {
 			if(!thread->running) return true;
 			thread->required = false;
 			thread->lock.Unlock();
-			return HT::Thread::Cancel(threadID);
+			return HT::Thread::Cancel(thread->threadID);
 		}
 	};
 

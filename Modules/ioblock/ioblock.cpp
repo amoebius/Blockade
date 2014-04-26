@@ -29,7 +29,7 @@ namespace ioblock {
 
 		infd = dup(STDIN_FILENO);
 		outfd = dup(STDOUT_FILENO);
-		devnull = open("/dev/null", O_RD);
+		devnull = open("/dev/null", O_RDONLY);
 		blocked = false;
 	}
 

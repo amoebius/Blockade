@@ -13,10 +13,12 @@
 #define __CHILDPROCESS_HPP
 
 
-#include "pipe/iopipe.hpp"
 #include <unistd.h>
 #include <string>
 #include <cstddef>
+
+#include "pipe/iopipe.hpp"
+#include "threading/threading.hpp"
 using namespace cpipe;
 
 class ChildProcess {
@@ -40,7 +42,13 @@ public:
 	const std::string filename;
 
 	template <typename T>
-	ChildProcess& operator >> (T& rhs);
+	ChildProcess& operator >> (T& rhs) {
+		//Threading::Threaded<ReadFunctor<T> > readOperation = Threading::Create(ReadFunctor<T>(out(), rhs));
+		//read_success = readOperation.join(timeout, false);
+		//if(!read_success) readOperation.cancel();
+		read_success = (pipe >> rhs);
+		return *this;
+	}
 
 	template <typename T>
 	inline std::ostream& operator << (T& rhs) {
@@ -72,6 +80,19 @@ private:
 	// NB: Only applies to read operations applied directly to this object (i.e. ChildProcess >> x).
 
 	int *instances;
+
+
+	// Helper functor for reads with timeouts:
+	template <typename T>
+	class ReadFunctor {
+		std::istream& stream;
+		T& result;
+	public:
+		ReadFunctor(std::istream& stream, T& result) : stream(stream), result(result) {}
+		const bool operator () () {
+			return stream >> result;
+		}
+	};
 
 };
 

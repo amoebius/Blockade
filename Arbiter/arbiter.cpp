@@ -233,7 +233,7 @@ int main(int argc, char* argv[]) {
 
 	fo(i,2) bot[i] << str_end << endl;
 
-	fo(i,2) if(logfiles[i]) (*logfiles[i]) << ((istream&)bot[i].err()).rdbuf() << endl << "-- End of Log --" << endl;
+	fo(i,2) if(logfiles[i]) (*logfiles[i]) << "~~ BEGIN LOG ~~\n" << ((istream&)bot[i].err()).rdbuf() << "\n~~ End of Log ~~" << endl;
 
 	return EXIT_SUCCESS;
 }
@@ -260,7 +260,7 @@ const bool canReach(int x, int y, int destination_y) {
 
 
 void showUsage(ostream& stream) {
-	stream << "Usage:\n" << "arbiter first_bot [second_bot = first_bot] [board_size = " << DEFAULT_SIZE << "] [first_bot_logfile] [second_bot_logfile]" << endl;
+	stream << "Usage:  arbiter first_bot [second_bot = first_bot] [board_size = " << DEFAULT_SIZE << "] [first_bot_logfile] [second_bot_logfile]" << endl;
 }
 
 void showHelp(ostream& stream) {

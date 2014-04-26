@@ -9,13 +9,17 @@
  * -------------------------------------------
  */
 
+#include <sys/types.h>
+#include <signal.h>
+#include <istream>
+
 #include "ChildProcess.hpp"
 #include "pipe/duopipe.hpp"
-#include <signal.h>
-using namespace std;
 
 
-ChildProcess::ChildProcess(string filename, char * const argv[], int timeout) : filename(filename), timeout(timeout) {
+#include <iostream>  // TPMETPMPTPMPMMPEPPPP
+using namespace std; // TEMPMMPMPMPMMPMPMMP
+ChildProcess::ChildProcess(std::string filename, char * const argv[], int timeout) : filename(filename), timeout(timeout) {
 	duopipe link;
 	iopipe errLink;
 
@@ -43,9 +47,9 @@ ChildProcess& ChildProcess::operator = (const ChildProcess& other) {
 	if(is_open()) --(*instances);
 	if(!instances) {
 		kill();
-		free instances;
+		delete instances;
 	}
-	(string &)(const string &)filename = other.filename; // Yes this is really dodgy, but it's semantic...
+	(std::string &)(const std::string &)filename = other.filename; // Yes this is really dodgy, but it's semantic...
 	pid = other.pid;
 	pipe = other.pipe;
 	err_pipe = other.err_pipe;
@@ -100,25 +104,6 @@ void ChildProcess::kill() {
 	if(is_open()) {
 		pipe.close();
 		err_pipe.close();
-		kill(pid, SIGKILL);
+		::kill(pid, SIGKILL);
 	}
-}
-
-
-template <typename T>
-class ReadFunctor {
-	istream& stream;
-	T& result;
-	readTo(istream& stream, T& result) : stream(stream), result(result) {}
-	const bool operator () () {
-		return stream >> result;
-	}
-};
-
-template <typename T>
-ChildProcess& operator >> <T> (T& rhs) {
-	Threaded<ReadFunctor<T> > readOperation = Threading::Create(ReadFunctor(stdin(), rhs));
-	read_result = readOperation.join(timeout, false);
-	if(!read_result) readOperation.cancel();
-	return *this;
 }

@@ -152,7 +152,7 @@ HL_EXP HThreadID HL_APIENTRY htThreadCreate(HThreadFunc func, void *data, int jo
     p = (ThreadParms *)malloc(sizeof(ThreadParms));
     if(p == NULL)
     {
-        SetLastError((unsigned long)ENOMEM);
+        //SetLastError((unsigned long)ENOMEM);
         return (HThreadID)HT_INVALID;
     }
     p->func = func;
@@ -244,7 +244,7 @@ HL_EXP int HL_APIENTRY htThreadEqual(HThreadID threadID1, HThreadID threadID2)
     return (int)(threadID1 == threadID2);
 #else
     /* POSIX systems */
-    return (int)pthread_equal(threadID1, threadID2);
+    return (int)pthread_equal((pthread_t)threadID1, (pthread_t)threadID2);
 #endif
 }
 
