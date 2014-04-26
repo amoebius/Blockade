@@ -40,8 +40,11 @@ ChildProcess::ChildProcess(const ChildProcess& other) :
 }
 
 ChildProcess& ChildProcess::operator = (const ChildProcess& other) {
-	if(isOpen()) --(*instances);
-	if(!instances) close();
+	if(is_open()) --(*instances);
+	if(!instances) {
+		kill();
+		free instances;
+	}
 	(string &)(const string &)filename = other.filename; // Yes this is really dodgy, but it's semantic...
 	pid = other.pid;
 	pipe = other.pipe;
@@ -55,9 +58,9 @@ ChildProcess& ChildProcess::operator = (const ChildProcess& other) {
 ChildProcess::ChildProcess() : filename(), pid(0), pipe(0), err_pipe(0), instances(NULL) {}
 
 ChildProcess::~ChildProcess() {
-	if(isOpen()) {
+	if(is_open()) {
 		--(*instances);
-		if(!(*instances)) close();
+		if(!(*instances)) kill();
 	}
 }
 
@@ -85,7 +88,7 @@ ChildProcess::operator const iopipe& () const {
 	return pipe;
 }
 
-const bool ChildProcess::isOpen() const {
+const bool ChildProcess::is_open() const {
 	return pipe.is_open();
 }
 
@@ -93,8 +96,8 @@ void ChildProcess::set_timeout(int timeout) {
 	this->timeout = timeout;
 }
 
-void ChildProcess::close() {
-	if(isOpen()) {
+void ChildProcess::kill() {
+	if(is_open()) {
 		pipe.close();
 		err_pipe.close();
 		kill(pid, SIGKILL);

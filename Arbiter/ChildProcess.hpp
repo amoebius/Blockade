@@ -33,8 +33,9 @@ public:
 	const ipipe& stdout() const;
 	const ipipe& stderr() const;
 	operator const iopipe&() const;
-	const bool isOpen() const;
+	const bool is_open() const;
 	void set_timeout(int timeout);
+	void kill();
 
 	const std::string filename;
 
@@ -52,7 +53,6 @@ public:
 
 
 private:
-	void close();
 
 	// Child process id:
 	pid_t pid;
