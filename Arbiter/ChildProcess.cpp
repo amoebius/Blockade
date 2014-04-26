@@ -23,8 +23,8 @@ ChildProcess::ChildProcess(string filename, char * const argv[]) : filename(file
 	if(pid == 0) {
 		link.bind_back();
 		link.close();
-		opipe errLinkOut = errLink.get_out();
-		errLinkOut.bindErr();
+		errLink.bind_err();
+		errLink.close();
 		execv(filename.c_str(), argv);
 	}
 

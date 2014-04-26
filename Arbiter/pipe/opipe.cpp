@@ -130,7 +130,7 @@ namespace cpipe {
 	}
 
 	// Binds to stderr:
-	void opipe::bindErr() {
+	void opipe::bind_err() {
 		bind(STDERR_FILENO);
 	}
 

@@ -81,7 +81,7 @@ namespace cpipe {
 		// Binds the file descriptor (standard output by default) to the pipe:
 		void bind(int fd = STDOUT_FILENO);
 		// Binds to stderr:
-		void bindErr();
+		void bind_err();
 		// Returns the file descriptor managed by the object:
 		const int file() const;
 		// Returns whether the object is currently managing a file:

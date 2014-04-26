@@ -133,6 +133,10 @@ namespace cpipe {
 	void iopipe::bind_out() {
 		out.bind();
 	}
+	// Bind standard error to the output of this iopipe by invoking the opipe's own 'bind' method:
+	void iopipe::bind_err() {
+		out.bind_err();
+	}
 	// Binds both standard input and standard output to this pipe:
 	void iopipe::bind() {
 		in.bind();

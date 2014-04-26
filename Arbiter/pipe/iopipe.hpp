@@ -104,6 +104,8 @@ namespace cpipe {
 		void bind_in();
 		// Binds standard output to this iopipe:
 		void bind_out();
+		// Binds standard error to this iopipe:
+		void bind_err();
 		// Binds standard input and standard output to this iopipe:
 		void bind();
 
