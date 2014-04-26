@@ -44,17 +44,40 @@ namespace Threading {
 
 	// A wrapper around Hawkthreads' mutex interface:
 	class Mutex {
+		friend class Cond;
+
 	private:
 		HTmutex mutex;
+		int *referenceCount;
+		inline void freeThis() {
+			if(--(*referenceCount) == 0) {
+				HT::Mutex::Destroy(mutex);
+				free referenceCount;
+			}
+		}
 	public:
-		// Initialise mutex on creation, destroy on deletion:
+		// Reference counting and assignment + copy to make things nice:
 		Mutex() {
 			HT::Mutex::Init(mutex);
+			referenceCount = new int;
+			*referenceCount = 1;
+		}
+		Mutex(const Mutex& other) {
+			mutex = other.mutex;
+			referenceCount = other.referenceCount;
+			++(*referenceCount);
+		}
+		Mutex& operator = (const Mutex& other) {
+			freeThis();
+			mutex = other.mutex;
+			referenceCount = other.referenceCount;
+			++(*referenceCount);
 		}
 		~Mutex() {
-			HT::Mutex::Destroy(mutex);
+			freeThis();
 		}
-		// Allow locking and unlocking of the mutex:
+
+		// Locking and unlocking of the mutex:
 		inline bool Lock() const {
 			return HT::Mutex::Lock(mutex);
 		}
@@ -66,19 +89,41 @@ namespace Threading {
 
 	// A wrapper around Hawkthreads' condition interface:
 	class Cond {
+		friend class Mutex;
+
 	private:
 		HTcond cond;
+		int *referenceCount;
+		inline void freeThis() {
+			if(--(*referenceCount) == 0) {
+				HT::Cond::Destroy(cond);
+				free referenceCount;
+			}
+		}
 	public:
-		// Initialise condition on creation, destroy on deletion:
+		// Reference counting and assignment + copy to make things nice:
 		Cond() {
 			HT::Cond::Init(cond);
+			referenceCount = new int;
+			*referenceCount = 1;
+		}
+		Cond(const Cond& other) {
+			cond = other.cond;
+			referenceCount = other.referenceCount;
+			++(*referenceCount);
+		}
+		Cond& operator = (const Cond& other) {
+			freeThis();
+			cond = other.cond;
+			referenceCount = other.referenceCount;
+			++(*referenceCount);
 		}
 		~Cond() {
-			HT::Cond::Destroy(cond);
+			freeThis();
 		}
 		// Allow waiting for signals and sending signals:
-		inline bool Wait(int timeout=0) {
-			return HT::Cond::Wait(cond, timeout);
+		inline bool Wait(Mutex& mutex, int timeout=0) {
+			return HT::Cond::Wait(cond, mutex.mutex, timeout);
 		}
 		inline bool Signal() {
 			return HT::Cond::Signal(cond);
@@ -90,7 +135,6 @@ namespace Threading {
 
 
 
-
 	// Declare the existence of the "Threaded" class:
 	template<class FunctorT> class Threaded;
 
@@ -99,6 +143,7 @@ namespace Threading {
 	template <class FunctorT>
 	class ThreadRunner : virtual Thread, FunctorT {
 		friend class Thread;
+		friend class Threaded<FunctorT>;
 
 	private:
 		// Record the result type:
@@ -107,15 +152,17 @@ namespace Threading {
 		// Mutex to manage state of the thread:
 		Mutex lock;
 
+		// Condition variable to signal that the thread has finished:
+		Cond signalFinish;
+
 		// Whether the thread is currently running or not:
-		bool running;
+		volatile bool running;
+		// Whether the result is still required or not:
+		volatile bool required;
+
 		// The result of the threaded functor:
 		ResultT result;
-
-		friend class Threaded<FunctorT>;
-		// Whether the result is still required or not:
-		bool required;
-
+		
 	public:
 		// Initialise the thread:
 		ThreadRunner(const FunctorT &functor, int priority = HT::Thread::Priority::Normal) : FunctorT(functor), required(true) {
@@ -142,6 +189,7 @@ namespace Threading {
 			obj->running = false;
 			bool required = obj->required;
 			obj->lock.Unlock();
+			signalFinish.Broadcast();
 
 			// Delete the object if the result isn't required:
 			if(!required) delete obj;
@@ -160,6 +208,10 @@ namespace Threading {
 		// The actual ThreadRunner object handling the thread:
 		ThreadRunner<FunctorT> *thread;
 
+		// For now, we don't support assignment of Threaded<FunctorT> objects...
+		Threaded(const FunctorT& other);
+		FunctorT& operator = (const FunctorT& other);
+
 	public:
 		// Initialise the thread runner on instantiation:
 		Threaded(FunctorT functor, int priority = HT::Thread::Priority::Normal) : thread(new ThreadRunner<FunctorT>(functor,priority)) {}
@@ -173,6 +225,20 @@ namespace Threading {
 		}
 		inline ResultT join() {
 			return thread->operator()();
+		}
+
+		// Method for joining with a timeout:
+		ResultT join(int timeout, const ResultT& defaultValue) {
+			thread->lock.Lock();
+			if(thread->running) {
+				thread->signalFinish.Wait(thread->lock, timeout);
+				if(thread->running) {
+					thread->lock.Unlock();
+					return defaultValue;
+				}
+			}
+			thread->lock.Unlock();
+			return join();
 		}
 
 		// On destruction:
