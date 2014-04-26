@@ -22,36 +22,55 @@ using namespace cpipe;
 class ChildProcess {
 
 public:
-	explicit ChildProcess(std::string filename, char * const argv[] = NULL);
+	explicit ChildProcess(std::string filename, char * const argv[] = NULL, int timeout = -1);
 	ChildProcess(const ChildProcess& other);
 	ChildProcess();
 	ChildProcess& operator = (const ChildProcess& other);
 	~ChildProcess();
 	pid_t getPID() const;
 	const iopipe& getPipe() const;
-	const ipipe& err() const;
+	const opipe& stdin() const;
+	const ipipe& stdout() const;
+	const ipipe& stderr() const;
 	operator const iopipe&() const;
 	const bool isOpen() const;
+	void set_timeout(int timeout);
 
 	const std::string filename;
 
 	template <typename T>
-	inline std::istream& operator >> (T& rhs) {
-		return pipe >> rhs;
-	}
+	ChildProcess& operator >> (T& rhs);
 
 	template <typename T>
 	inline std::ostream& operator << (T& rhs) {
 		return pipe << rhs;
 	}
 
+	inline operator bool () {
+		return read_success;
+	}
+
 
 private:
 	void close();
 
+	// Child process id:
 	pid_t pid;
+
+	// Child stdin and stdout pipes:
 	iopipe pipe;
-	ipipe errPipe;
+	// Child stderr pipe:
+	ipipe err_pipe;
+
+	// Indicates whether the last read was successful.
+	bool read_success;
+
+	// Timeout for reads from child stdout.
+	// <= 0: Blocking read.
+	//  > 0: Try to read for the given number of milliseconds.
+	int timeout;
+	// NB: Only applies to read operations applied directly to this object (i.e. ChildProcess >> x).
+
 	int *instances;
 
 };

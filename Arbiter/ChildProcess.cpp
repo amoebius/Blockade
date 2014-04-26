@@ -15,7 +15,7 @@
 using namespace std;
 
 
-ChildProcess::ChildProcess(string filename, char * const argv[]) : filename(filename) {
+ChildProcess::ChildProcess(string filename, char * const argv[], int timeout) : filename(filename), timeout(timeout) {
 	duopipe link;
 	iopipe errLink;
 
@@ -29,12 +29,12 @@ ChildProcess::ChildProcess(string filename, char * const argv[]) : filename(file
 	}
 
 	pipe = link.front();
-	errPipe = errLink.get_in();
+	err_pipe = errLink.get_in();
 	instances = new int(1);
 }
 
 ChildProcess::ChildProcess(const ChildProcess& other) :
-	filename(other.filename), pid(other.pid), pipe(other.pipe), errPipe(other.errPipe), instances(other.instances) {
+	filename(other.filename), pid(other.pid), pipe(other.pipe), err_pipe(other.err_pipe), timeout(other.timeout), instances(other.instances) {
 
 	++(*instances);
 }
@@ -45,13 +45,14 @@ ChildProcess& ChildProcess::operator = (const ChildProcess& other) {
 	(string &)(const string &)filename = other.filename; // Yes this is really dodgy, but it's semantic...
 	pid = other.pid;
 	pipe = other.pipe;
-	errPipe = other.errPipe;
+	err_pipe = other.err_pipe;
+	timeout = other.timeout;
 	instances = other.instances;
 	++(*instances);
 	return *this;
 }
 
-ChildProcess::ChildProcess() : filename(), pid(0), pipe(0), errPipe(0), instances(NULL) {}
+ChildProcess::ChildProcess() : filename(), pid(0), pipe(0), err_pipe(0), instances(NULL) {}
 
 ChildProcess::~ChildProcess() {
 	if(isOpen()) {
@@ -68,8 +69,16 @@ const iopipe& ChildProcess::getPipe() const {
 	return pipe;
 }
 
-const ipipe& ChildProcess::err() const {
-	return errPipe;
+const opipe& ChildProcess::stdin() const {
+	return pipe.get_out();
+}
+
+const ipipe& ChildProcess::stdout() const {
+	return pipe.get_in();
+}
+
+const ipipe& ChildProcess::stderr() const {
+	return err_pipe;
 }
 
 ChildProcess::operator const iopipe& () const {
@@ -80,10 +89,33 @@ const bool ChildProcess::isOpen() const {
 	return pipe.is_open();
 }
 
+void ChildProcess::set_timeout(int timeout) {
+	this->timeout = timeout;
+}
+
 void ChildProcess::close() {
 	if(isOpen()) {
 		pipe.close();
-		errPipe.close();
+		err_pipe.close();
 		kill(pid, SIGKILL);
 	}
+}
+
+
+template <typename T>
+class ReadFunctor {
+	istream& stream;
+	T& result;
+	readTo(istream& stream, T& result) : stream(stream), result(result) {}
+	const bool operator () () {
+		return stream >> result;
+	}
+};
+
+template <typename T>
+ChildProcess& operator >> <T> (T& rhs) {
+	Threaded<ReadFunctor<T> > readOperation = Threading::Create(ReadFunctor(stdin(), rhs));
+	read_result = readOperation.join(timeout, false);
+	if(!read_result) readOperation.cancel();
+	return *this;
 }
