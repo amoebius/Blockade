@@ -41,7 +41,8 @@ int main(int argc, char* argv[]) {
 	ofstream *logfiles[2] = {NULL, NULL};
 
 	if (argc < 2 || argc > 6) {
-		cerr << "Invalid number of arguments specified.  Usage:\n" << "arbiter first_bot [second_bot = first_bot] [board_size = " << DEFAULT_SIZE << "] [first_bot_logfile] [second_bot_logfile]" << endl;
+		cerr << "Invalid number of arguments specified." << endl;
+		showUsage(cerr);
 		cerr << "Run `arbiter " << HELP_PROMPT << "` for more options." << endl;
 		return EXIT_FAILURE;
 	}
@@ -49,7 +50,7 @@ int main(int argc, char* argv[]) {
 	if(argc == 2) {
 		fo(i,2) programs[i] = argv[1];
 		if(programs[0] == HELP_PROMPT) {
-			showHelp();
+			showHelp(cout);
 			return EXIT_SUCCESS;
 		}
 
@@ -255,4 +256,18 @@ const bool _canReach(int x, int y, int to) {
 const bool canReach(int x, int y, int destination_y) {
 	fo(i, board_size) fo(j, board_size) seen[i][j] = false;
 	return _canReach(x, y, destination_y);
+}
+
+
+void showUsage(ostream& stream) {
+	stream << "Usage:\n" << "arbiter first_bot [second_bot = first_bot] [board_size = " << DEFAULT_SIZE << "] [first_bot_logfile] [second_bot_logfile]" << endl;
+}
+
+void showHelp(ostream& stream) {
+	showUsage(stream);
+	stream << "first_bot:          The relative or absolute path of the first bot executable." << endl;
+	stream << "second_bot:         The relative or absolute path of the second bot executable." << endl;
+	stream << "board_size:         The size of the board to use (defaults to " << DEFAULT_SIZE << ")." << endl;
+	stream << "first_bot_logfile:  The relative or absolute path of a file to log the output of the first bot to." << endl;
+	stream << "second_bot_logfile: The relative or absolute path of a file to log the outupt of the second bot to." << endl;
 }
