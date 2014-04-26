@@ -5,6 +5,9 @@
  * method for blocking reading and writing to
  * stdin and stdout, to prevent bots from
  * intefering with the arbiter-module stream.
+ * Standard output is redirected to standard
+ * error, so that logging output can still be
+ * read.
  * -------------------------------------------
  * Author:  James Payor (github.com/amoebius)
  * -------------------------------------------
@@ -17,7 +20,7 @@
 
 namespace ioblock {
 
-	int infd, outfd, errfd, devnull;
+	int infd, outfd, devnull;
 	bool initialised = false, blocked;
 
 	void init() {
@@ -26,18 +29,16 @@ namespace ioblock {
 
 		infd = dup(STDIN_FILENO);
 		outfd = dup(STDOUT_FILENO);
-		errfd = dup(STDERR_FILENO);
-		devnull = open("/dev/null", O_RDWR);
+		devnull = open("/dev/null", O_RD);
 		blocked = false;
 	}
 
 	void clean() {
 		if(!initialised) return;
-		if(blocked) unblock();
+		unblock();
 
 		close(infd);
 		close(outfd);
-		close(errfd);
 		close(devnull);
 		initialised = false;
 	}
@@ -47,8 +48,7 @@ namespace ioblock {
 		blocked = true;
 
 		dup2(devnull, STDIN_FILENO);
-		dup2(devnull, STDOUT_FILENO);
-		dup2(devnull, STDERR_FILENO);
+		dup2(STDERR_FILENO, STDOUT_FILENO);
 	}
 
 	void unblock() {
@@ -57,7 +57,6 @@ namespace ioblock {
 
 		dup2(infd, STDIN_FILENO);
 		dup2(outfd, STDOUT_FILENO);
-		dup2(errfd, STDERR_FILENO);
 	}
 
 }; // namespace ioblock
