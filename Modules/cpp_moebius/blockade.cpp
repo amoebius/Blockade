@@ -16,6 +16,7 @@
 using namespace std;
 
 #include "blockade.h"
+#include "../ioblock/ioblock.hpp"
 
 // Command strings:
 static const string str_move("move"), str_block("block"), str_turn("turn"), str_end("end"), str_nothing("nothing");
@@ -29,14 +30,24 @@ static int getActionType(action act);
 static int getMoveDir(action act);
 static int getBlockX(action act);
 static int getBlockY(action act);
+static int getRed(color col);
+static int getGreen(color col);
+static int getBlue(color col);
 
 
 int main() {
+
+	// Initialise io blocking:
+	ioblock::init();
+
+	ioblock::block();
 	// Allow the client to set a name and colour:
 	string player_name = getName();
 	// Extract color components with bithax:
 	color col = getColor();
-	int red = (col>>16) & 255, green = (col>>8) & 255, blue = col & 255;
+	ioblock::unblock();
+
+	int red = getRed(col), green = getGreen(col), blue = getBlue(col);
 
 	// Limit the name length:
 	int maxLen = min<int>(20, player_name.size());
@@ -60,7 +71,9 @@ int main() {
 	cin >> boardSize >> myPID;
 	for(int id=0; id<2; ++id) cin >> player_x[id] >> player_y[id];
 
+	ioblock::block();
 	newGame();
+	ioblock::unblock();
 
 
 	// Main command loop:
@@ -71,20 +84,29 @@ int main() {
 		cin >> command;
 
 		if (command == str_move) {
+			
 			// Update the player position:
 			int playerID, x, y;
 			cin >> playerID;
 			cin >> player_x[playerID] >> player_y[playerID];
 
 		} else if (command == str_block) {
+			
 			// Block the square:
 			int playerID, x, y;
 			cin >> playerID >> x >> y;
+			
+			ioblock::block();
 			setSquare(playerID, x, y);
+			ioblock::unblock();
 
 		} else if (command == str_turn) {
+			
 			// Make a move:
+			ioblock::block();
 			action turn = getMove();
+			ioblock::unblock();
+
 			int actionType = getActionType(turn);
 
 			if(actionType == moving) {
@@ -109,7 +131,21 @@ color makeColor(int r, int g, int b) {
 	return (r<<16) + (g<<8) + b;
 }
 
-// Converts a direction to an integer in (-1, -2, -3, -4):
+// Gets the 'red' component of the given color:
+static int getRed(color col) {
+	return (col>>16) & 255;
+}
+// Gets the 'green' component of the given color:
+static int getGreen(color col) {
+	return (col>>8) & 255;
+}
+// Gets the 'blue' component of the given color:
+static int getBlue(color col) {
+	return col & 255;
+}
+
+
+// Converts a direction to an integer in {-1, -2, -3, -4}:
 action step(int dir) {
 	return -1 - dir;
 }
@@ -125,7 +161,7 @@ static int getActionType(action act) {
 	else return blocking;
 }
 
-// Extracts the movement direction, mapping (-1,-2,-3,-4) to (0,1,2,3):
+// Extracts the movement direction, mapping [-1, -4] to [0, 4):
 static int getMoveDir(action act) {
 	return -1 - act;
 }
@@ -138,6 +174,7 @@ static int getBlockX(action act) {
 static int getBlockY(action act) {
 	return act & ((1<<16) - 1);
 }
+
 
 // Returns the player's ID:
 int getMyID() {

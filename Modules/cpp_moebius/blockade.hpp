@@ -1,5 +1,5 @@
-#ifndef __BLOCKADE_H
-#define __BLOCKADE_H
+#ifndef __BLOCKADE_HPP
+#define __BLOCKADE_HPP
 
 /* -------------------------------------------
  * Moebius Blockade Interface for C++
@@ -14,7 +14,7 @@
 /* Functions provided by the module:
  *
  * int getMyID();       -  Returns the bot's player id (0 or 1).
- * int getTheirID();    -  Returns the other bot's player id (0 or 1).
+ * int getEnemyID();    -  Returns the other bot's player id (0 or 1).
  * int getBoardSize();  -  Returns the size of the board.
  * int getX(int id);    -  Returns the 'x' coordinate of the player with the specified id.
  * int getY(int id);    -  Returns the 'y' coordinate of the player with the specified id.
@@ -31,7 +31,7 @@
 
 /* Functions to be implemented by the player's bot:
  *
- * string getName();                          -  Returns the bot's name.
+ * char * getName();                          -  Returns the bot's name.
  * color  getColor();                         -  Returns the bot's colour.
  * void   newGame();                          -  Initialises the bot at the beginning of a game.
  * void   setSquare(int pid, int x, int y);   -  Informs the bot that the square (x,y) has been blocked by the player 'pid'.
@@ -51,7 +51,6 @@
 #define MAX_SIZE              50
 
 // Requried type definitions:
-#include <string>
 typedef int color;
 typedef int action;
 
@@ -65,9 +64,9 @@ typedef int action;
 // Returns the bot's player id ('0' or '1').
 int getMyID();
 
-// getTheirID:
+// getEnemyID:
 // Returns the opponent's player id ('0' or '1').
-int getTheirID();
+int getEnemyID();
 
 // getBoardSize:
 // Returns the side-length of the square game board.
@@ -103,7 +102,7 @@ action block(int x, int y);
 
 // getName:
 // Returns the bot's name, called once at the beginning of the game.
-std::string getName();
+char * getName();
 
 // getColor:
 // Returns the bot's color, called once at the beginning of the game.
@@ -127,4 +126,4 @@ action getMove();
 
 
 
-#endif // __BLOCKADE_H
+#endif // __BLOCKADE_HPP
