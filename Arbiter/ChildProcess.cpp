@@ -72,15 +72,15 @@ const iopipe& ChildProcess::getPipe() const {
 	return pipe;
 }
 
-const opipe& ChildProcess::stdin() const {
+const opipe& ChildProcess::in() const {
 	return pipe.get_out();
 }
 
-const ipipe& ChildProcess::stdout() const {
+const ipipe& ChildProcess::out() const {
 	return pipe.get_in();
 }
 
-const ipipe& ChildProcess::stderr() const {
+const ipipe& ChildProcess::err() const {
 	return err_pipe;
 }
 

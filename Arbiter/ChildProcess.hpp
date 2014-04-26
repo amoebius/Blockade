@@ -29,9 +29,9 @@ public:
 	~ChildProcess();
 	pid_t getPID() const;
 	const iopipe& getPipe() const;
-	const opipe& stdin() const;
-	const ipipe& stdout() const;
-	const ipipe& stderr() const;
+	const opipe& in() const;
+	const ipipe& out() const;
+	const ipipe& err() const;
 	operator const iopipe&() const;
 	const bool is_open() const;
 	void set_timeout(int timeout);

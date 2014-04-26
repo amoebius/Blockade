@@ -27,10 +27,10 @@ const int MIN_SIZE = 5, MAX_SIZE = 50, DEFAULT_SIZE = 25, MAX_TURN_TIME = 1500;
 bool blocked[MAX_SIZE][MAX_SIZE];
 int board_size;
 
-const int UP = 0, RIGHT = 1, DOWN = 2, LEFT = 3, NUM_DIRECTIONS;
+const int UP = 0, RIGHT = 1, DOWN = 2, LEFT = 3, NUM_DIRECTIONS = 4;
 const int dx[] = {0, 1, 0, -1}, dy[] = {-1, 0, 1, 0};
 
-const string HELP_PROMPT = "-h"
+const string HELP_PROMPT = "-h";
 const string str_turn = "turn", str_move = "move", str_block = "block", str_nothing = "nothing", str_error = "error", str_end = "end";
 const string directions[] = { "up", "right", "down", "left" };
 
@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	ChildProcess bot[2] = { ChildProcess(programs[0], MAX_TURN_TIME), ChildProcess(programs[1], MAX_TURN_TIME) };
+	ChildProcess bot[2] = { ChildProcess(programs[0], NULL, MAX_TURN_TIME), ChildProcess(programs[1], NULL, MAX_TURN_TIME) };
 	int player_id[2], player_x[2], player_y[2];
 
 	fo(i,2) player_x[i] = board_size / 2;
@@ -232,7 +232,7 @@ int main(int argc, char* argv[]) {
 
 	fo(i,2) bot[i] << str_end << endl;
 
-	fo(i,2) if(logfiles[i]) (*logfiles[i]) << ((istream&)bot[i].stderr()).rdbuf() << endl << "-- End of Log --" << endl;
+	fo(i,2) if(logfiles[i]) (*logfiles[i]) << ((istream&)bot[i].err()).rdbuf() << endl << "-- End of Log --" << endl;
 
 	return EXIT_SUCCESS;
 }
