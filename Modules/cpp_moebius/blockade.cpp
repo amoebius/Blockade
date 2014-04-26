@@ -13,13 +13,14 @@
 #include <string>
 #include <cctype>
 #include <cstddef>
+#include <cstdlib>
 using namespace std;
 
 #include "blockade.h"
 #include "../ioblock/ioblock.hpp"
 
 // Command strings:
-static const string str_move("move"), str_block("block"), str_turn("turn"), str_end("end"), str_nothing("nothing");
+static const string str_move("move"), str_block("block"), str_turn("turn"), str_end("end"), str_nothing("nothing"), str_error("error");
 
 // Global information:
 static int boardSize, myPID, player_x[2], player_y[2];
@@ -33,7 +34,7 @@ static int getBlockY(action act);
 static int getRed(color col);
 static int getGreen(color col);
 static int getBlue(color col);
-
+static void clientAssert(bool condition, char * message);
 
 int main() {
 
@@ -69,6 +70,8 @@ int main() {
 
 	// Read initial values from the Arbiter, and initialise the client:
 	cin >> boardSize >> myPID;
+	clientAssert(boardSize > 0, "Board size <= 0");
+	clientAssert(myPID >= 0 && myPID < 2, "PID is insane");
 	for(int id=0; id<2; ++id) cin >> player_x[id] >> player_y[id];
 
 	ioblock::block();
@@ -117,8 +120,17 @@ int main() {
 				cout << str_nothing << endl;
 			}
 
-		} else { // command == str_end, or invalid command:
+		} else if (command == str_end) {
+			
 			break; // Exit
+
+		} else {
+
+			// Invalid command.
+			cout << str_error << endl;
+			cerr << "Invalid command '" << command << "' received.  Aborting." << endl;
+			return EXIT_FAILURE;
+
 		}
 	}
 
@@ -198,3 +210,14 @@ int getX(int id) {
 int getY(int id) {
 	return player_y[id];
 }
+
+
+void clientAssert(bool condition, char * message) {
+	if(!condition) {
+		ioblock::unblock();
+		cerr << "Error in client: " << message << endl;
+		exit(EXIT_FAILURE);
+	}
+}
+
+
