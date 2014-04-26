@@ -86,8 +86,8 @@ namespace HT {
 		inline bool Destroy(HTcond &cond) {
 			return htCondDestroy(&cond) == 0;
 		}
-		inline bool Wait(HTcond &cond, int timeout) {
-			return htCondWait(&cond, timeout) == 0;
+		inline bool Wait(HTcond &cond, HTmutex &mutex, int timeout) {
+			return htCondWait(&cond, &mutex, timeout) == 0;
 		}
 		inline bool Signal(HTcond &cond) {
 			return htCondSignal(&cond) == 0;

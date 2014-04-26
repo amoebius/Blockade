@@ -121,7 +121,7 @@ HL_EXP int       HL_APIENTRY htMutexDestroy(/*@null@*/ HTmutex *mutex);
 HL_EXP int       HL_APIENTRY htCondInit(/*@out@*/ HTcond *cond);
 
 /* returns 0 on success, or an error number */
-HL_EXP int       HL_APIENTRY htCondWait(HTcond *cond, int timeout);
+HL_EXP int       HL_APIENTRY htCondWait(HTcond *cond, HTmutex *mutex, int timeout);
 
 /* returns 0 on success, or an error number */
 HL_EXP int       HL_APIENTRY htCondSignal(HTcond *cond);

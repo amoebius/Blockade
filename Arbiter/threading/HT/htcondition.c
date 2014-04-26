@@ -50,7 +50,6 @@ struct ht_cond_t
 struct ht_cond_t
 {
   pthread_cond_t    cond;
-  pthread_mutex_t   mutex;
 };
 
 #endif /* !HT_WIN_THREADS */
@@ -89,20 +88,13 @@ HL_EXP int HL_APIENTRY htCondInit(HTcond *cond)
             free(cv);
             return result;
         }
-        result = pthread_mutex_init((pthread_mutex_t *)&cv->mutex, NULL);
-        if(result != 0)
-        {
-            (void)pthread_cond_destroy((pthread_cond_t *)&cv->cond);
-            free(cv);
-            return result;
-        }
 #endif
         *cond = cv;
     }
     return 0;
 }
 
-HL_EXP int HL_APIENTRY htCondWait(HTcond *cond, int timeout)
+HL_EXP int HL_APIENTRY htCondWait(HTcond *cond, HTmutex *mutex, int timeout)
 {
     if(cond == NULL)
     {
@@ -111,6 +103,14 @@ HL_EXP int HL_APIENTRY htCondWait(HTcond *cond, int timeout)
     if(*cond == NULL)
     {
 		return EINVAL;
+    }
+    if(mutex == NULL)
+    {
+        return EINVAL;
+    }
+    if(*mutex == NULL)
+    {
+        return EINVAL;
     }
     if(timeout <= 0)
     {
@@ -127,13 +127,12 @@ HL_EXP int HL_APIENTRY htCondWait(HTcond *cond, int timeout)
 #else
         int result = 0;
 
-        (void)pthread_mutex_lock((pthread_mutex_t *)&cv->mutex);
-        result = pthread_cond_wait((pthread_cond_t *)&cv->cond, (pthread_mutex_t *)&cv->mutex);
+        (void)pthread_mutex_lock((pthread_mutex_t *)mutex);
+        result = pthread_cond_wait((pthread_cond_t *)&cv->cond, mutex);
         if(result != 0)
         {
             return result;
         }
-        (void)pthread_mutex_unlock((pthread_mutex_t *)&cv->mutex);
 #endif
     }
     else
@@ -165,19 +164,17 @@ HL_EXP int HL_APIENTRY htCondWait(HTcond *cond, int timeout)
         tv.tv_sec = t.time + (ms / 1000);
         tv.tv_nsec = (ms % 1000) * 1000000;
 
-        (void)pthread_mutex_lock((pthread_mutex_t *)&cv->mutex);
+        (void)pthread_mutex_lock((pthread_mutex_t *)mutex);
         result = pthread_cond_timedwait((pthread_cond_t *)&cv->cond,
-                                            (pthread_mutex_t *)&cv->mutex, &tv);
+                                            (pthread_mutex_t *)mutex, &tv);
         if(result == ETIMEDOUT)
         {
-            (void)pthread_mutex_unlock((pthread_mutex_t *)&cv->mutex);
             return ETIMEDOUT;
         }
         else if(result != 0)
         {
             return result;
         }
-        (void)pthread_mutex_unlock((pthread_mutex_t *)&cv->mutex);
     }
 #endif
     return 0;
