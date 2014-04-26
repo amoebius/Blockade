@@ -12,6 +12,11 @@
 #define __ARBITER_HPP
 
 
+const bool outside(int x, int y);
+
+const bool canReach(int x, int y, int destination_y);
+
+void showHelp();
 
 
 #endif //__ARBITER_HPP

@@ -11,157 +11,218 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <fstream>
 #include <string>
-#include <algorithm>
 using namespace std;
 
 #include "arbiter.hpp"
 #include "pipe/duopipe.hpp"
 #include "ChildProcess.hpp"
-#include "threading/threading.hpp"
-#include "threading/atomic.hpp"
 
 // For-loop macro - for i = 0 to n-1:
 #define fo(i,n) for(int i=0, _n=(n); i < _n; ++i)
 
-const int MAX_SIZE = 50;
+
+const int MIN_SIZE = 5, MAX_SIZE = 50, DEFAULT_SIZE = 25, MAX_TURN_TIME = 1500;
 bool blocked[MAX_SIZE][MAX_SIZE];
 int board_size;
 
-const int UP = 0, RIGHT = 1, DOWN = 2, LEFT = 3;
+const int UP = 0, RIGHT = 1, DOWN = 2, LEFT = 3, NUM_DIRECTIONS;
 const int dx[] = {0, 1, 0, -1}, dy[] = {-1, 0, 1, 0};
 
-const string str_turn = "turn", str_move = "move", str_block = "block", str_nothing = "nothing", str_end = "end";
+const string HELP_PROMPT = "-h"
+const string str_turn = "turn", str_move = "move", str_block = "block", str_nothing = "nothing", str_error = "error", str_end = "end";
 const string directions[] = { "up", "right", "down", "left" };
-
-const bool canReach(int x, int y, int destination_y);
-
-inline const bool outside(int x, int y) {
-	return x < 0 || y < 0 || x >= board_size || y >= board_size;
-}
 
 int main(int argc, char* argv[]) {
 
 	string programs[2];
-	board_size = 25;
-	if(argc == 2) {
-		fo(i,2) programs[i] = argv[1];
+	board_size = DEFAULT_SIZE;
+	ofstream *logfiles[2] = {NULL, NULL};
 
-	} else if(argc == 3) {
-		fo(i,2) programs[i] = argv[i+1];
-
-	} else if(argc == 4) {
-		fo(i,2) programs[i] = argv[i+1];
-		board_size = atoi(argv[3]);
-		if(board_size < 5 || board_size > MAX_SIZE) {
-			cerr << "Invalid board size.  Specified board size must be an integer between 5 and " << MAX_SIZE << endl;
-		}
-
-	} else {
-		cerr << "Invalid number of arguments specified.  Usage:\n" << "arbiter first_bot_location [second_bot_location] [board_size = 25]" << endl;
+	if (argc < 2 || argc > 6) {
+		cerr << "Invalid number of arguments specified.  Usage:\n" << "arbiter first_bot [second_bot = first_bot] [board_size = " << DEFAULT_SIZE << "] [first_bot_logfile] [second_bot_logfile]" << endl;
+		cerr << "Run `arbiter " << HELP_PROMPT << "` for more options." << endl;
 		return EXIT_FAILURE;
 	}
 
+	if(argc == 2) {
+		fo(i,2) programs[i] = argv[1];
+		if(programs[0] == HELP_PROMPT) {
+			showHelp();
+			return EXIT_SUCCESS;
+		}
 
-	ChildProcess bot[2] = { ChildProcess(programs[0]), ChildProcess(programs[1]) };
+	} else {
+		fo(i,2) programs[i] = argv[i+1];
+
+		if(argc >= 4) {
+			board_size = atoi(argv[3]);
+			if(board_size < MIN_SIZE || board_size > MAX_SIZE) {
+				cerr << "Invalid board size.  Specified board size must be an integer between " << MIN_SIZE << " and " << MAX_SIZE << endl;
+				return EXIT_FAILURE;
+			}
+		}
+
+		if(argc >= 5) {
+			logfiles[0] = new ofstream(argv[4]);
+			if(logfiles[0] == NULL || !logfiles[0]->is_open()) {
+				cerr << "Unable to open '" << argv[4] << "' for writing.  Aborting." << endl;
+				return EXIT_FAILURE;
+			}
+		}
+
+		if(argc >= 6) {
+			logfiles[1] = new ofstream(argv[5]);
+			if(logfiles[1] == NULL || !logfiles[1]->is_open()) {
+				cerr << "Unable to open '" << argv[5] << "' for writing.  Aborting." << endl;
+				return EXIT_FAILURE;
+			}
+
+		}
+	}
+
+	ChildProcess bot[2] = { ChildProcess(programs[0], MAX_TURN_TIME), ChildProcess(programs[1], MAX_TURN_TIME) };
 	int player_id[2], player_x[2], player_y[2];
 
 	fo(i,2) player_x[i] = board_size / 2;
 	player_y[0] = 0;
 	player_y[1] = board_size - 1;
 
-	int turn = 0;
+	int turn = 0, winner;
+	bool game_running = true;
 
 	string names[2];
-	fo(i,2) bot[i] >> names[i];
+	fo(i,2) if(!(bot[i] >> names[i])) {
+		cout << i << " Error: Unable to read bot name." << endl;
+		game_running = false;
+		winner = 1 - i;
+		break;
+	}
 
 	int color_red[2], color_green[2], color_blue[2];
-	fo(i,2) bot[i] >> color_red[i] >> color_green[i] >> color_blue[i];
+	if(game_running) {
+		fo(i,2) if(!(bot[i] >> color_red[i] >> color_green[i] >> color_blue[i])) {
+			cout << i << " Error: Unable to read bot color." << endl;
+			game_running = false;
+			winner = 1 - i;
+			break;
+		}
+	}
 
-	fo(i,2) bot[i] << board_size << ' ' << i << endl;
-	fo(i,2) fo(j,2) bot[i] << player_x[j] << ' ' << player_y[j] << endl;
+	if(game_running) {
+		fo(i,2) bot[i] << board_size << ' ' << i << endl;
+		fo(i,2) fo(j,2) bot[i] << player_x[j] << ' ' << player_y[j] << endl;
 
-	cout << names[0] << " versus " << names[1] << " size " << board_size << endl;
-	fo(i,2) cout << i << " starts at " << player_x[i] << ' ' << player_y[i] << endl;
-	fo(i,2) cout << i << " RGB " << color_red[i] << ' ' << color_green[i] << ' ' << color_blue[i] << endl;
+		cout << names[0] << " versus " << names[1] << " size " << board_size << endl;
+		fo(i,2) cout << i << " starts at " << player_x[i] << ' ' << player_y[i] << endl;
+		fo(i,2) cout << i << " RGB " << color_red[i] << ' ' << color_green[i] << ' ' << color_blue[i] << endl;
 
-	fo(i,2) fo(j,2) bot[i] << str_move << ' ' << j << ' ' << player_x[j] << ' ' << player_y[j] << endl;
+		fo(i,2) fo(j,2) bot[i] << str_move << ' ' << j << ' ' << player_x[j] << ' ' << player_y[j] << endl;
+	}
 
-	bool game_running = true;
-	int winner;
 	while(game_running) {
 
 		bot[turn] << str_turn << endl;
 
 		string response;
-		bot[turn] >> response;
+		if(bot[turn] >> response) {
 
-		if(response == str_move) {
+			if(response == str_move) {
 
-			int direction;
-			bot[turn] >> direction;
+				int direction;
+				if((bot[turn] >> direction) && direction >= 0 && direction < NUM_DIRECTIONS) {
 
-			int x = player_x[turn] + dx[direction], y = player_y[turn] + dy[direction];
+					int x = player_x[turn] + dx[direction], y = player_y[turn] + dy[direction];
 
-			if(outside(x,y)) {
-				cout << turn << " Invalid: Attempted to move " << directions[direction] << " off the board to (" << x << ", " << y << ")." << endl;
-				game_running = false;
-				winner = 1 - turn;
-
-			} else if(blocked[y][x]) {
-				cout << turn << " Invalid: Attempted to move " << directions[direction] << " into the blocked square at (" << x << ", " << y << ")." << endl;
-				game_running = false;
-				winner = 1 - turn;
-
-			} else {
-				cout << turn << " moved " << directions[direction] << " to " << x << ' ' << y << endl;
-				if(turn) {
-					if(y == 0) {
+					if(outside(x,y)) {
+						cout << turn << " Invalid: Attempted to move " << directions[direction] << " off the board to (" << x << ", " << y << ")." << endl;
 						game_running = false;
-						winner = 1;
-					}
-				} else {
-					if(y == board_size - 1) {
+						winner = 1 - turn;
+
+					} else if(blocked[y][x]) {
+						cout << turn << " Invalid: Attempted to move " << directions[direction] << " into the blocked square at (" << x << ", " << y << ")." << endl;
 						game_running = false;
-						winner = 0;
+						winner = 1 - turn;
+
+					} else {
+						cout << turn << " moved " << directions[direction] << " to " << x << ' ' << y << endl;
+						if(turn) {
+							if(y == 0) {
+								game_running = false;
+								winner = 1;
+							}
+						} else {
+							if(y == board_size - 1) {
+								game_running = false;
+								winner = 0;
+							}
+						}
+						player_x[turn] = x;
+						player_y[turn] = y;
+
+						fo(i,2) bot[i] << str_move << ' ' << turn << ' ' << x << ' ' << y << endl;
 					}
-				}
-				player_x[turn] = x;
-				player_y[turn] = y;
 
-				fo(i,2) bot[i] << str_move << ' ' << turn << ' ' << x << ' ' << y << endl;
-			}
-
-		} else if(response == str_block) {
-
-			int x, y;
-			bot[turn] >> x >> y;
-
-			if(blocked[y][x]) {
-				cout << turn << " Invalid: Square (" << x << ", " << y << ") is already blocked." << endl;
-				game_running = false;
-				winner = 1 - turn;
-
-			} else {
-				blocked[y][x] = true;
-				if(canReach(player_x[0], player_y[0], board_size-1) && canReach(player_x[1], player_y[1], 0)) {
-					cout << turn << " blocked " << x << ' ' << y << endl;
-					fo(i,2) bot[i] << str_block << ' ' << turn << ' ' << x << ' ' << y << endl;
 				} else {
-					cout << turn << " Invalid: Blocking square (" << x << ", " << y << ") blocks the path of a player." << endl;
+					cout << turn << " Error: Failed to read move direction or invalid direction given by bot." << endl;
 					game_running = false;
 					winner = 1 - turn;
 				}
+
+			} else if(response == str_block) {
+
+				int x, y;
+				if(bot[turn] >> x >> y) {
+
+					if(outside(x,y)) {
+						cout << turn << " Invalid: Tried to block square (" << x << ", " << y << "), which is not on the board." << endl;
+						game_running = false;
+						winner = 1 - turn;
+
+					} else if(blocked[y][x]) {
+						cout << turn << " Invalid: Square (" << x << ", " << y << ") is already blocked." << endl;
+						game_running = false;
+						winner = 1 - turn;
+
+					} else {
+						blocked[y][x] = true;
+						if(canReach(player_x[0], player_y[0], board_size-1) && canReach(player_x[1], player_y[1], 0)) {
+							cout << turn << " blocked " << x << ' ' << y << endl;
+							fo(i,2) bot[i] << str_block << ' ' << turn << ' ' << x << ' ' << y << endl;
+						} else {
+							cout << turn << " Invalid: Blocking square (" << x << ", " << y << ") blocks the path of a player." << endl;
+							game_running = false;
+							winner = 1 - turn;
+						}
+					}
+
+				} else {
+					cout << turn << " Error: Failed to read block position." << endl;
+					game_running = false;
+					winner = 1 - turn;
+				}
+
+			} else if(response == str_nothing) {
+				cout << turn << " Invalid: No move provided." << endl;
+				game_running = false;
+				winner = 1 - turn;
+
+			} else if(response == str_error) {
+				cout << turn << " Error: Error in client." << endl;
+				game_running = false;
+				winner = 1 - turn;
+
+			} else {
+				cout << turn << " Error: Invalid move response given - '" << response << "'." << endl;
+				game_running = false;
+				winner = 1 - turn;			
 			}
 
-		} else if(response == str_nothing) {
-			cout << turn << " Invalid: No move provided." << endl;
+		} else {
+			cout << turn << " Error: Unable to read bot's move response.  (Probably timed out.)" << endl;
 			game_running = false;
 			winner = 1 - turn;
-
-		} else {
-			cout << "-1 Error: Invalid move response given - '" << response << "'." << endl;
-			return EXIT_FAILURE;
 		}
 
 		turn = 1 - turn;
@@ -171,9 +232,15 @@ int main(int argc, char* argv[]) {
 
 	fo(i,2) bot[i] << str_end << endl;
 
+	fo(i,2) if(logfiles[i]) (*logfiles[i]) << ((istream&)bot[i].stderr()).rdbuf() << endl << "-- End of Log --" << endl;
+
 	return EXIT_SUCCESS;
 }
 
+
+const bool outside(int x, int y) {
+	return x < 0 || y < 0 || x >= board_size || y >= board_size;
+}
 
 bool seen[MAX_SIZE][MAX_SIZE];
 

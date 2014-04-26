@@ -25,6 +25,8 @@
 << "block" << X << Y << endl
 // Or:
 << "nothing" << endl // The client has failed to provide a move
+// Or:
+<< "error" << endl // The client has encountered an error - descriptions can be send to stderr
 
 // End command: (terminate)
 >> "end"
