@@ -58,12 +58,14 @@ typedef void *HTkey;
 */
 
 /* returns HThreadID on success, or NULL on error */
-HL_EXP /*@null@*/ HThreadID HL_APIENTRY htThreadCreate(HThreadFunc func, void *data, int joinable);
+HL_EXP HThreadID HL_APIENTRY htThreadCreate(HThreadFunc func, void *data, int joinable);
 
 HL_EXP void      HL_APIENTRY htThreadYield(void);
 
 /* returns 0 on success, or an error number */
 HL_EXP int       HL_APIENTRY htThreadJoin(HThreadID threadID, /*@out@*/ void **status);
+
+HL_EXP int       HL_APIENTRY htThreadCancel(HThreadID threadID);
 
 HL_EXP void      HL_APIENTRY htThreadSleep(int mseconds);
 
@@ -73,26 +75,26 @@ HL_EXP HThreadID HL_APIENTRY htThreadSelf(void);
 HL_EXP int       HL_APIENTRY htThreadEqual(HThreadID threadID1, HThreadID threadID2);
 
 /* returns current thread priority */
-HL_EXP int HL_APIENTRY htThreadGetPriority(void);
+HL_EXP int       HL_APIENTRY htThreadGetPriority(void);
 
 /* returns 0 on success, or an error number */
-HL_EXP int HL_APIENTRY htThreadSetPriority(int priority);
+HL_EXP int       HL_APIENTRY htThreadSetPriority(int priority);
 
 /*
    Thread local storage
 */
 
 /* returns THkey on success, or HT_INVALID on error */
-HL_EXP HTkey HL_APIENTRY htThreadNewKey(void);
+HL_EXP HTkey     HL_APIENTRY htThreadNewKey(void);
 
 /* returns 0 on success, or an error number */
-HL_EXP int HL_APIENTRY htThreadSetKeyData(HTkey key, void* data);
+HL_EXP int       HL_APIENTRY htThreadSetKeyData(HTkey key, void* data);
 
 /* returns key data */
-HL_EXP void* HL_APIENTRY htThreadGetKeyData(HTkey key);
+HL_EXP void*     HL_APIENTRY htThreadGetKeyData(HTkey key);
 
 /* returns 0 on success, or an error number */
-HL_EXP int HL_APIENTRY htThreadDeleteKey(HTkey key);
+HL_EXP int       HL_APIENTRY htThreadDeleteKey(HTkey key);
 
 
 /*

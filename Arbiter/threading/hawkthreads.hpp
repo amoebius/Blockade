@@ -36,10 +36,13 @@ namespace HT {
 			return htThreadCreate(func, data, joinable);
 		}
 		inline bool Join(HThreadID threadID, void* &retval) {
-			return htThreadJoin(threadID, &retval);
+			return htThreadJoin(threadID, &retval) == 0;
 		}
 		inline bool Join(HThreadID threadID) {
-			return htThreadJoin(threadID, NULL);
+			return htThreadJoin(threadID, NULL) == 0;
+		}
+		inline bool Cancel(HThreadID threadID) {
+			return htThreadCancel(threadID) == 0;
 		}
 		inline HThreadID Self() {
 			return htThreadSelf();

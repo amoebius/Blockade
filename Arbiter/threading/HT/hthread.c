@@ -442,3 +442,24 @@ HL_EXP int HL_APIENTRY htThreadDeleteKey(HTkey key)
 #endif
 }
 
+
+// James:  My additions :)
+
+HL_EXP int HL_APIENTRY htThreadCancel(HThreadID threadID)
+{
+#ifdef HT_WIN_THREADS
+    /* Windows threads */
+    BOOL result = TerminateThread((HANDLE)threadID, 0);
+    if(result == 0)
+    {
+        return GetLastError();
+    }
+    else
+    {
+        return 0;
+    }
+#else
+    /* POSIX systems */
+    return pthread_cancel((pthread_t)threadID);
+#endif
+}
