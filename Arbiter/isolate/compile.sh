@@ -1,4 +1,3 @@
-#!/bin/sh -ex
-
-gcc -o isolate isolate.c -O2 -Wall -Wno-parentheses -Wno-unused-result -g -std=c99
+#!/bin/bash
+gcc -o isolate isolate.c -O3 -std=c99
 

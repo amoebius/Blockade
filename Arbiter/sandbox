@@ -1,2 +1,18 @@
 #!/bin/bash
-exec $1
+id=0
+for i in {0..999}; do
+	if [ ! -d "/tmp/box/$i/box" ]; then
+		id=$i
+		break
+	fi
+done
+
+#Run!
+isolate/isolate --box-id=$id --init > /dev/null &&
+cp $1 /tmp/box/$id/box/ &&
+name=`basename $1` &&
+chmod a+x /tmp/box/$id/box/$name &&
+isolate/isolate --box-id=$id --env=HOME=/box --mem=100000 --time=1000 --quota=1,1 --run -- ./$name
+
+# Clean up:
+isolate/isolate --box-id=$id --cleanup

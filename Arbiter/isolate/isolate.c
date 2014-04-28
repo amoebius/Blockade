@@ -187,7 +187,7 @@ die(char *msg, ...)
     {
       // We are inside the box, have to use error pipe for error reporting.
       // We hope that the whole error message fits in PIPE_BUF bytes.
-      write(write_errors_to_fd, buf, n);
+      (void)write(write_errors_to_fd, buf, n);
       exit(2);
     }
 
@@ -1217,8 +1217,9 @@ setup_fds(void)
       if (open(redir_stderr, O_WRONLY | O_CREAT | O_TRUNC, 0666) != 2)
 	die("open(\"%s\"): %m", redir_stderr);
     }
-  else
-    dup2(1, 2);
+  // For our purposes, we want stdout and stderr to be separated:
+  //else
+  //  dup2(1, 2);
 }
 
 static void
