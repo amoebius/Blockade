@@ -25,6 +25,9 @@ namespace cpipe {
 	public:
 		// Instantiates two new pipes and builds a duopipe from them:
 		duopipe();
+		// Construct a duopipe NOT bound to any new pipes:
+		explicit duopipe(int);
+		
 		// Reuses the pipes of another duopipe (copy constructor):
 		duopipe(const duopipe& other);
 		// Builds a duopipe from the front and back ends of the two specified pipes:

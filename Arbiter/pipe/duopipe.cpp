@@ -27,6 +27,9 @@ namespace cpipe {
 		_back = iopipe(b,a);
 	}
 
+	// Construct a duopipe NOT bound to any new pipes:
+	duopipe::duopipe(int) : _front(0), _back(0), isOpen(false) {}
+
 	// Reuses the pipes of another duopipe (copy constructor):
 	duopipe::duopipe(const duopipe& other) : _front(other.front()), _back(other.back()), isOpen(other.isOpen) {}
 
