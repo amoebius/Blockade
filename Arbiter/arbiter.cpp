@@ -22,7 +22,9 @@ using namespace std;
 
 #include "arbiter.hpp"
 #include "pipe/duopipe.hpp"
+#include "threading/threading.hpp"
 #include "ChildProcess.hpp"
+using namespace cpipe;
 
 // For-loop macro - for i = 0 to n-1:
 #define fo(i,n) for(int i=0, _n=(n); i < _n; ++i)
@@ -245,15 +247,26 @@ int main(int argc, char* argv[]) {
 	fo(i,2) {
 		bot[i] << str_end << endl;
 	}
+	
+	HT::Thread::Sleep(50); // Allow a modest amount of time for the processes to gracefully shutdown.
+	
+	// Keep handles on the error pipes:
+	iopipe log_pipe[2] = {bot[0].get_err_pipe(), bot[1].get_err_pipe()};
+
+	// DIE:
+	fo(i,2) bot[i].kill();
 
 	fo(i,2) if(logfiles[i]) {
-		(*logfiles[i]) << "~~ BEGIN LOG ~~\n";
-		//const int BUFFER_SIZE = 1000;
-		//char buffer[BUFFER_SIZE + 1];
-		//while(((istream&)bot[i].err()).read(buffer, BUFFER_SIZE) > 0) (*logfiles[i]) << buffer;
-		(*logfiles[i]) << ((istream&)bot[i].err()).rdbuf();
-		(*logfiles[i]) << "\n~~ End of Log ~~" << endl;
+
+		*logfiles[i] << "-- Beginning of logged output --\n";
+
+		// Hacky, but there's no nice way to do this that I could find:
+		log_pipe[i] << '\0' << flush;
+		log_pipe[i].get_istream().get(*logfiles[i]->rdbuf(), '\0');
+		
+		*logfiles[i] << "\n-- End of logged output --" << endl;
 		delete logfiles[i];
+
 	}
 
 	return EXIT_SUCCESS;
