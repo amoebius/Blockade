@@ -65,12 +65,19 @@ int main() {
 
 	// Read initial values from the Arbiter, and initialise the client:
 	cin >> boardSize >> myPID;
-	int dummy;
-	for(int i=0; i<2; ++i) cin >> dummy >> dummy; // Burn up the input of initial coordinates.
 
 	ioblock::block();
 	clientInit(boardSize, myPID);
 	ioblock::unblock();
+
+	for(int id = 0; id < 2; ++id) {
+		int x, y;
+		cin >> x >> y;
+		ioblock::block();
+		clientPlayerPosition(id, x, y);
+		ioblock::unblock();
+	}
+
 
 	// Main command loop:
 	while (true) {

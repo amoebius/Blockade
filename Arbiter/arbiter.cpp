@@ -139,7 +139,6 @@ int main(int argc, char* argv[]) {
 		// Send initial info:
 		fo(i,2)  bot[i] << board_size << ' ' << i << endl;
 		fo(i,2) fo(j,2) bot[i] << player_x[j] << ' ' << player_y[j] << endl;
-		fo(i,2) fo(j,2) bot[i] << str_move << ' ' << j << ' ' << player_x[j] << ' ' << player_y[j] << endl;
 
 	}
 
