@@ -46,6 +46,8 @@ ChildProcess::ChildProcess(std::string filename, std::vector<std::string> argv, 
 
 	pipe = link.front();
 	err_pipe = errLink.get_in();
+	reverse_pipe = link.back();
+	reverse_err_pipe = errLink.get_out();
 	instances = new int(1);
 }
 
@@ -88,6 +90,14 @@ const iopipe& ChildProcess::getPipe() const {
 	return pipe;
 }
 
+const iopipe& ChildProcess::getReversePipe() const {
+	return reverse_pipe;
+}
+
+const opipe& ChildProcess::getReverseErr() const {
+	return reverse_err_pipe;
+}
+
 const opipe& ChildProcess::in() const {
 	return pipe.get_out();
 }
@@ -116,6 +126,8 @@ void ChildProcess::kill() {
 	if(is_open()) {
 		pipe.close();
 		err_pipe.close();
+		reverse_pipe.close();
+		reverse_err_pipe.close();
 		::kill(pid, SIGKILL);
 	}
 }

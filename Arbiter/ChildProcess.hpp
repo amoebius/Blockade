@@ -34,6 +34,8 @@ public:
 	~ChildProcess();
 	pid_t getPID() const;
 	const iopipe& getPipe() const;
+	const iopipe& getReversePipe() const;
+	const opipe&  getReverseErr() const;
 	const opipe& in() const;
 	const ipipe& out() const;
 	const ipipe& err() const;
@@ -82,6 +84,11 @@ private:
 	iopipe pipe;
 	// Child stderr pipe:
 	ipipe err_pipe;
+
+	// Child's end of the stdin/stdout pipe:
+	iopipe reverse_pipe;
+	// Child's end of the stderr pipe:
+	opipe reverse_err_pipe;
 
 	// Indicates whether the last read was successful.
 	bool read_success;
