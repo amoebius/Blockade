@@ -108,6 +108,7 @@ namespace cpipe {
 		close();
 		pipe = new opipe_ref(fd);
 		isOpen = true;
+		write_success = true;
 	}
 
 	// Close the opipe - decrement the opipe_ref's reference count if open, and update open state:
@@ -131,7 +132,11 @@ namespace cpipe {
 
 	// Returns the opipe_ref's file descriptor:
 	const int opipe::file() const {
-		return pipe->file();
+		if(isOpen) {
+			return pipe->file();
+		} else {
+			return -1;
+		}
 	}
 
 	// Binds the file descriptor (by default standard output) to this pipe - 'straightforward' invokation of the 'dup2' api method:

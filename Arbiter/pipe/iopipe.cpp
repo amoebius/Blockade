@@ -37,7 +37,7 @@ namespace cpipe {
 	}
 
 	// Creates an iopipe that is not attached to a new pipe, in a closed state:
-	iopipe::iopipe(int) : isOpen(false) {}
+	iopipe::iopipe(int) : in(), out(), isOpen(false) {}
 
 	// Binds the given file descriptors to the new iopipe by invoking the relevant constructors, and sets state to 'open':
 	iopipe::iopipe(int in_fd, int out_fd) : in(in_fd), out(out_fd), isOpen(true) {}

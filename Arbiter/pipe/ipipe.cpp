@@ -108,6 +108,7 @@ namespace cpipe {
 		close();
 		pipe = new ipipe_ref(fd);
 		isOpen = true;
+		read_success = true;
 	}
 
 	// Close the ipipe - decrement the ipipe_ref's reference count if open, and update open state:
@@ -116,6 +117,7 @@ namespace cpipe {
 			pipe->dec();
 			pipe = NULL;
 			isOpen = false;
+			read_success = false;
 		}
 	}
 
@@ -131,7 +133,11 @@ namespace cpipe {
 
 	// Returns the ipipe_ref's file descriptor:
 	const int ipipe::file() const {
-		return pipe->file();
+		if(isOpen) {
+			return pipe->file();
+		} else {
+			return -1;
+		}
 	}
 
 	// Binds the given file descriptor (stdin by default) to this pipe - 'straightforward' invokation of the 'dup2' api method:

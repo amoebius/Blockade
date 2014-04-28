@@ -11,6 +11,7 @@
 #include "iopipe.hpp"
 #include "duopipe.hpp"
 
+
 namespace cpipe {
 
 	/***********************************************************************************************************/
@@ -39,8 +40,8 @@ namespace cpipe {
 	// Reuses the pipes of another duopipe for assignment operations:
 	duopipe& duopipe::operator = (const duopipe& other) {
 		if(&other != this) {
-			_front = other.front();
-			_back = other.back();
+			_front = other._front;
+			_back = other._back;
 			isOpen = other.isOpen;
 		}
 		return *this;
