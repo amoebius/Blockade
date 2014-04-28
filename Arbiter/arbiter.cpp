@@ -30,6 +30,7 @@ using namespace cpipe;
 #define fo(i,n) for(int i=0, _n=(n); i < _n; ++i)
 
 
+const string sandboxer = "sandbox";
 const int MAX_TURN_TIME = 1500;
 
 const int MIN_SIZE = 5, MAX_SIZE = 50, DEFAULT_SIZE = 25;
@@ -92,7 +93,15 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	ChildProcess bot[2] = { ChildProcess(programs[0], MAX_TURN_TIME), ChildProcess(programs[1], MAX_TURN_TIME) };
+	// Spawn sandboxed child processes, with timeouts:
+	ChildProcess bot[2];
+	fo(i,2) {
+		vector<string> argv;
+		argv.push_back(sandboxer);
+		argv.push_back(programs[i]);
+		bot[i] = ChildProcess(sandboxer, argv, MAX_TURN_TIME);
+	}
+
 	int player_id[2], player_x[2], player_y[2];
 
 	fo(i,2) player_x[i] = board_size / 2;
@@ -251,7 +260,8 @@ int main(int argc, char* argv[]) {
 	HT::Thread::Sleep(50); // Allow a modest amount of time for the processes to gracefully shutdown.
 	
 	// Keep handles on the error pipes:
-	iopipe log_pipe[2] = {bot[0].get_err_pipe(), bot[1].get_err_pipe()};
+	iopipe log_pipe[2] = {iopipe(0), iopipe(0)};
+	fo(i,2) log_pipe[i] = bot[i].get_err_pipe();
 
 	// DIE:
 	fo(i,2) bot[i].kill();
