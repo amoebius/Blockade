@@ -41,7 +41,6 @@ ChildProcess::ChildProcess(std::string filename, const std::vector<std::string>&
 
 		// Welp.  We really shouldn't be here.  Abandonnnn ship.
 		std::cerr << "Failed to start subprocess.  Aborting." << std::endl;
-		sleep(500);
 		exit(EXIT_FAILURE);
 	}
 
@@ -55,11 +54,9 @@ ChildProcess::ChildProcess(const ChildProcess& other)
 }
 
 ChildProcess& ChildProcess::operator = (const ChildProcess& other) {
-	if(is_open()) --(*instances);
-	if(!instances) {
-		kill();
-		delete instances;
-	}
+	if(&other == this) return *this;
+
+	close_object();
 	
 	(std::string &)(const std::string &)filename = other.filename; // Yes this is really dodgy, but it's semantic...
 	pid = other.pid;
@@ -77,13 +74,10 @@ ChildProcess& ChildProcess::operator = (const ChildProcess& other) {
 
 ChildProcess::ChildProcess()
 	: filename(), pid(0), read_success(false), timeout(), instances(NULL),
-	  original_duopipe(0), original_err_pipe(0), pipe(0), err_pipe(0) {}
+	  original_duopipe(0), original_err_pipe(0), pipe(0), err_pipe() {}
 
 ChildProcess::~ChildProcess() {
-	if(is_open()) {
-		--(*instances);
-		if(!(*instances)) kill();
-	}
+	close_object();
 }
 
 const pid_t ChildProcess::get_pid() const {
@@ -125,6 +119,7 @@ void ChildProcess::set_timeout(int timeout) {
 void ChildProcess::kill() {
 	if(is_open()) {
 		close_pipes();
+		delete instances;
 		::kill(pid, SIGKILL);
 	}
 }
@@ -134,4 +129,12 @@ void ChildProcess::close_pipes() {
 	err_pipe.close();
 	original_duopipe.close();
 	original_err_pipe.close();
+}
+
+void ChildProcess::close_object() {
+	if(is_open()) {
+		if(--(*instances) == 0) {
+			kill();
+		}
+	}
 }

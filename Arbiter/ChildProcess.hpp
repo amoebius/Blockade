@@ -14,6 +14,7 @@
 
 
 #include <unistd.h>
+#include <iostream>
 #include <string>
 #include <vector>
 #include <cstddef>
@@ -50,12 +51,27 @@ public:
 		if (!read_success || !pipe.is_open()) {
 			read_success = false;
 		} else {
-			if(timeout > 0) {
-				Threading::Threaded<ReadFunctor<T> > readOperation = Threading::Create(ReadFunctor<T>(out(), rhs));
-				read_success = readOperation.join(timeout, false);
-				if(!read_success) readOperation.cancel();
-			} else {
-				read_success = (pipe >> rhs);
+			try {
+				if(timeout > 0) {
+					Threading::Threaded<ReadFunctor<T> > readOperation = Threading::Create(ReadFunctor<T>(out(), rhs));
+					read_success = readOperation.join(timeout, false);
+					if(!read_success) readOperation.cancel();
+				} else {
+					read_success = (pipe >> rhs);
+				}
+
+			} catch(const std::exception &e) {
+				// It may be possible for the process on the other end of the pipe to make the underlying streams screw up,
+				// and the stl in its wisdom throws exceptions...
+				// Log, and prevent further reads:
+				std::cerr << "ChildProcess: Exception thrown in read operation - what() = " << e.what() << std::endl;
+				read_success = false;
+			
+			} catch(...) {
+				// If it was an arbitrary exception... we still probably want to indicate this with a "read failure" result,
+				// not an exception:
+				std::cerr << "ChildProcess: Exception thrown in read operation of unknown type.  Keep calm, and carry on..." << std::endl;
+
 			}
 		}
 		return *this;
@@ -79,7 +95,9 @@ public:
 
 private:
 
+	// Internal cleanup helpers:
 	void close_pipes();
+	void close_object();
 
 	// Child process id:
 	pid_t pid;
