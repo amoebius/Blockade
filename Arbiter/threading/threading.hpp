@@ -14,33 +14,34 @@
 // Required declarations for HawkThreads (cross-platform multithreading library):
 #include "hawkthreads.hpp"
 
-// Useful for marking void return values:
-typedef int threadvoid;
-
-// Virtual class that allows objects to easily inherit basic threading support:
-class Thread {
-public:
-	HThreadID threadID;
-	int priority;
-	inline HThreadID self() {
-		return threadID;
-	}
-	inline void sleep(int milliseconds) {
-		HT::Thread::Sleep(milliseconds);
-	}
-	inline void yield() {
-		HT::Thread::Yield();
-	}
-	inline int getPriority() {
-		return priority;
-	}
-	inline void setPriority(int priority) {
-		this->priority = priority;
-		HT::Thread::SetPriority(priority);
-	}
-};
 
 namespace Threading {
+
+	// Useful for marking void return values:
+	typedef int threadvoid;
+
+	// Virtual class that allows objects to easily inherit basic threading support:
+	class Thread {
+	public:
+		HThreadID threadID;
+		int priority;
+		inline HThreadID self() {
+			return threadID;
+		}
+		inline void sleep(int milliseconds) {
+			HT::Thread::Sleep(milliseconds);
+		}
+		inline void yield() {
+			HT::Thread::Yield();
+		}
+		inline int getPriority() {
+			return priority;
+		}
+		inline void setPriority(int priority) {
+			this->priority = priority;
+			HT::Thread::SetPriority(priority);
+		}
+	};
 
 	// A wrapper around Hawkthreads' mutex interface:
 	class Mutex {
