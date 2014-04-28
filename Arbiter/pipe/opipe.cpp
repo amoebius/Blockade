@@ -119,6 +119,11 @@ namespace cpipe {
 		}
 	}
 
+	// Get the ostream corresponding to this opipe by casting:
+	std::ostream& opipe::get_ostream() const {
+		return (std::ostream&)*this;
+	}
+
 	// Cast to an ostream - return the opipe_ref casted to an ostream:
 	opipe::operator std::ostream& () const {
 		return *pipe;

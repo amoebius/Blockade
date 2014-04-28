@@ -94,6 +94,7 @@ namespace cpipe {
 		const bool is_open() const;
 
 		// Cast to an ostream:
+		std::ostream& get_ostream() const;
 		operator std::ostream& () const;
 
 		// Provide stream insertion operator:
@@ -132,7 +133,7 @@ namespace cpipe {
 	};
 
 
-} // namespace pipe
+} // namespace cpipe
 
 
 #endif // __OPIPE_HPP

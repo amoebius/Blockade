@@ -86,6 +86,7 @@ namespace cpipe {
 		const bool is_open() const;
 
 		// Cast to an istream:
+		std::istream& get_istream() const;
 		operator std::istream& () const;
 
 		// Provide stream extraction operator:
@@ -113,7 +114,7 @@ namespace cpipe {
 	};
 
 
-} // namespace pipe
+} // namespace cpipe
 
 
 #endif // __IPIPE_HPP

@@ -95,6 +95,10 @@ namespace cpipe {
 		const ipipe& get_in() const;
 		// Returns the opipe this iopipe refers to:
 		const opipe& get_out() const;
+		// Returns the istream corresponding to this iopipe:
+		std::istream& get_istream() const;
+		// Returns the ostream corresponding to this iopipe:
+		std::ostream& get_ostream() const;
 		// Returns the input file descriptor bound to this iopipe:
 		const int in_file() const;
 		// Returns the output file descriptor bound to this iopipe:
@@ -151,6 +155,6 @@ namespace cpipe {
 		opipe out;
 	};
 
-} // namespace pipe
+} // namespace cpipe
 
 #endif //__IOPIPE_HPP

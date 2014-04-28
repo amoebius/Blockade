@@ -119,6 +119,11 @@ namespace cpipe {
 		}
 	}
 
+	// Get the istream corresponding to this ipipe by casting:
+	std::istream& ipipe::get_istream() const {
+		return (std::istream&)*this;
+	}
+
 	// Cast to an istream - return the ipipe_ref casted to an istream:
 	ipipe::operator std::istream& () const {
 		return *pipe;

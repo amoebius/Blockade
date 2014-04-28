@@ -93,6 +93,16 @@ namespace cpipe {
 		}
 	}
 
+	// Return the istream corresponding to this iopipe by casting:
+	std::istream& iopipe::get_istream() const {
+		return (std::istream&)*this;
+	}
+
+	// Return the ostream corresponding to this iopipe by casting:
+	std::ostream& iopipe::get_ostream() const {
+		return (std::ostream&)*this;
+	}
+
 	// Cast to an istream by casting the bound ipipe to an istream:
 	iopipe::operator std::istream& () const {
 		return in;
