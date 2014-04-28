@@ -16,6 +16,7 @@ void display();
 
 int main() {
 	string data;
+	cout.sync_with_stdio(false);
 
 	// name versus name
 	cin >> names[0] >> data >> names[1];
@@ -56,6 +57,7 @@ int main() {
 			blocked[y][x] = true;
 
 		} else {
+			cout << data << ' ';
 			while(cin >> data) cout << data << ' ';
 			cout << endl << endl;
 			return 1;
@@ -65,14 +67,19 @@ int main() {
 	}
 }
 
+const char * SEPARATOR = "";
+const char * BOT_CHAR = "OX";
+const char * WALL = "█";
+const char * EMPTY = "░";
+
 void display() {
-	cout << names[0] << " (0) versus " << names[1] << " (1):" << endl;
+	cout << names[0] << " (" << BOT_CHAR[0] << ") versus " << names[1] << " (" << BOT_CHAR[1] << "):\n";
 	for(int y = 0; y < size; ++y) {
 		for(int x = 0; x < size; ++x) {
-			if(y==py[0]&&x==px[0]) cout << "0 ";
-			else if(y==py[1]&&x==px[1]) cout << "1 ";
-			else if(blocked[y][x]) cout << "X ";
-			else cout << ". ";
+			if(y==py[0]&&x==px[0]) cout << BOT_CHAR[0] << SEPARATOR;
+			else if(y==py[1]&&x==px[1]) cout << BOT_CHAR[1] << SEPARATOR;
+			else if(blocked[y][x]) cout << WALL << SEPARATOR;
+			else cout << EMPTY << SEPARATOR;
 		}
 		cout << '\n';
 	}
