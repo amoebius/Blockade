@@ -25,7 +25,7 @@
 class ChildProcess {
 
 public:
-	explicit ChildProcess(std::string filename, std::vector<std::string> argv, int timeout = -1);
+	explicit ChildProcess(std::string filename, const std::vector<std::string>& argv, int timeout = -1);
 	explicit ChildProcess(std::string filename, int timeout = -1) : ChildProcess(filename, std::vector<std::string>(1, filename), timeout) {}
 	ChildProcess(const ChildProcess& other);
 	ChildProcess();

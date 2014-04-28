@@ -20,7 +20,7 @@
 using namespace cpipe;
 
 
-ChildProcess::ChildProcess(std::string filename, std::vector<std::string> argv, int timeout)
+ChildProcess::ChildProcess(std::string filename, const std::vector<std::string>& argv, int timeout)
 	: filename(filename), read_success(true), timeout(timeout), instances(new int(1)),
 	  original_duopipe(), original_err_pipe(), pipe(original_duopipe.front()), err_pipe(original_err_pipe.get_in()) {
 	
@@ -32,11 +32,13 @@ ChildProcess::ChildProcess(std::string filename, std::vector<std::string> argv, 
 		close_pipes();
 
 		// Convert the arguments into the required format:
-		char **arguments = new char* [argv.size()+1];
-		for(int i = 0; i < argv.size(); ++i) arguments[i] = (char *)argv[i].c_str();
+		const char * arguments[argv.size()+1];
+		for(int i = 0; i < argv.size(); ++i) arguments[i] = argv[i].c_str();
 		arguments[argv.size()] = NULL;
 
-		execv(filename.c_str(), arguments);
+		// Execute!
+		execv(filename.c_str(), (char * const *)arguments);
+
 		// Welp.  We really shouldn't be here.  Abandonnnn ship.
 		std::cerr << "Failed to start subprocess.  Aborting." << std::endl;
 		sleep(500);
@@ -73,7 +75,9 @@ ChildProcess& ChildProcess::operator = (const ChildProcess& other) {
 	return *this;
 }
 
-ChildProcess::ChildProcess() : filename(), pid(0), pipe(0), err_pipe(0), instances(NULL) {}
+ChildProcess::ChildProcess()
+	: filename(), pid(0), read_success(false), timeout(), instances(NULL),
+	  original_duopipe(0), original_err_pipe(0), pipe(0), err_pipe(0) {}
 
 ChildProcess::~ChildProcess() {
 	if(is_open()) {
