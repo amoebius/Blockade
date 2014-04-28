@@ -17,6 +17,7 @@
 #include "ioblock.hpp"
 #include <unistd.h>
 #include <fcntl.h>
+#include <cstdio>
 
 namespace ioblock {
 
@@ -47,6 +48,7 @@ namespace ioblock {
 		if(blocked) return;
 		blocked = true;
 
+		fflush(stdout);
 		dup2(devnull, STDIN_FILENO);
 		dup2(STDERR_FILENO, STDOUT_FILENO);
 	}
@@ -55,6 +57,8 @@ namespace ioblock {
 		if(!blocked) return;
 		blocked = false;
 
+		fflush(stdout);
+		fflush(stderr);
 		dup2(infd, STDIN_FILENO);
 		dup2(outfd, STDOUT_FILENO);
 	}
