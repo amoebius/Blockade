@@ -18,9 +18,8 @@
 #include <vector>
 #include <cstddef>
 
-#include "pipe/iopipe.hpp"
+#include "pipe/duopipe.hpp"
 #include "threading/threading.hpp"
-using namespace cpipe;
 
 
 class ChildProcess {
@@ -32,14 +31,13 @@ public:
 	ChildProcess();
 	ChildProcess& operator = (const ChildProcess& other);
 	~ChildProcess();
-	pid_t getPID() const;
-	const iopipe& getPipe() const;
-	const iopipe& getReversePipe() const;
-	const opipe&  getReverseErr() const;
-	const opipe& in() const;
-	const ipipe& out() const;
-	const ipipe& err() const;
-	operator const iopipe&() const;
+	const pid_t get_pid() const;
+	const cpipe::duopipe& get_duopipe() const;
+	const cpipe::iopipe& get_err_pipe() const;
+	const cpipe::opipe& in() const;
+	const cpipe::ipipe& out() const;
+	const cpipe::ipipe& err() const;
+	operator const cpipe::iopipe&() const;
 	const bool is_open() const;
 	void set_timeout(int timeout);
 	void kill();
@@ -60,12 +58,12 @@ public:
 	}
 
 	template <typename T>
-	inline opipe& operator << (const T& rhs) {
+	inline cpipe::opipe& operator << (const T& rhs) {
 		return pipe << rhs;
 	}
 
 	// Support std::endl and other manipulators:
-	inline opipe& operator << (std::ostream&(*manipulator)(std::ostream&)) {
+	inline cpipe::opipe& operator << (std::ostream&(*manipulator)(std::ostream&)) {
 		return pipe << manipulator;
 	}
 
@@ -77,18 +75,10 @@ public:
 
 private:
 
+	void close_pipes();
+
 	// Child process id:
 	pid_t pid;
-
-	// Child stdin and stdout pipes:
-	iopipe pipe;
-	// Child stderr pipe:
-	ipipe err_pipe;
-
-	// Child's end of the stdin/stdout pipe:
-	iopipe reverse_pipe;
-	// Child's end of the stderr pipe:
-	opipe reverse_err_pipe;
 
 	// Indicates whether the last read was successful.
 	bool read_success;
@@ -99,9 +89,20 @@ private:
 	int timeout;
 	// NB: Only applies to read operations applied directly to this object (i.e. ChildProcess >> x).
 
+	// Reference count for this subprocess:
 	int *instances;
 
+	// The original duopipe:
+	cpipe::duopipe original_duopipe;
+	// The original stderr iopipe:
+	cpipe::iopipe original_err_pipe;
 
+	// Child stdin and stdout pipes:
+	cpipe::iopipe pipe;
+	// Child stderr pipe:
+	cpipe::ipipe err_pipe;
+
+	
 	// Helper functors for reads with timeouts:
 	template <typename T>
 	class ReadFunctor {

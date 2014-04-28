@@ -17,21 +17,20 @@
 
 #include "ChildProcess.hpp"
 #include "pipe/duopipe.hpp"
+using namespace cpipe;
 
 
-ChildProcess::ChildProcess(std::string filename, std::vector<std::string> argv, int timeout) : filename(filename), timeout(timeout), read_success(true) {
+ChildProcess::ChildProcess(std::string filename, std::vector<std::string> argv, int timeout)
+	: filename(filename), read_success(true), timeout(timeout), instances(new int(1)),
+	  original_duopipe(), original_err_pipe(), pipe(original_duopipe.front()), err_pipe(original_err_pipe.get_in()) {
 	
-	duopipe link;
-	iopipe errLink;
-
 	pid = fork();
 	if(pid == 0) {
 		// Redirect IO:
-		link.bind_back();
-		link.close();
-		errLink.bind_err();
-		errLink.close();
-	
+		original_duopipe.bind_back();
+		original_err_pipe.bind_err();
+		close_pipes();
+
 		// Convert the arguments into the required format:
 		char **arguments = new char* [argv.size()+1];
 		for(int i = 0; i < argv.size(); ++i) arguments[i] = (char *)argv[i].c_str();
@@ -39,20 +38,16 @@ ChildProcess::ChildProcess(std::string filename, std::vector<std::string> argv, 
 
 		execv(filename.c_str(), arguments);
 		// Welp.  We really shouldn't be here.  Abandonnnn ship.
-		std::cerr << "Failed to start bot '" << filename << "'...  Aborting subprocess." << std::endl;
+		std::cerr << "Failed to start subprocess.  Aborting." << std::endl;
 		sleep(500);
 		exit(EXIT_FAILURE);
 	}
 
-	pipe = link.front();
-	err_pipe = errLink.get_in();
-	reverse_pipe = link.back();
-	reverse_err_pipe = errLink.get_out();
-	instances = new int(1);
 }
 
-ChildProcess::ChildProcess(const ChildProcess& other) :
-	filename(other.filename), pid(other.pid), pipe(other.pipe), err_pipe(other.err_pipe), timeout(other.timeout), instances(other.instances) {
+ChildProcess::ChildProcess(const ChildProcess& other)
+	: filename(other.filename), pid(other.pid), read_success(other.read_success), timeout(other.timeout), instances(other.instances),
+	  original_duopipe(other.original_duopipe), original_err_pipe(other.original_err_pipe), pipe(other.pipe), err_pipe(other.err_pipe) {
 
 	++(*instances);
 }
@@ -63,12 +58,17 @@ ChildProcess& ChildProcess::operator = (const ChildProcess& other) {
 		kill();
 		delete instances;
 	}
+	
 	(std::string &)(const std::string &)filename = other.filename; // Yes this is really dodgy, but it's semantic...
 	pid = other.pid;
-	pipe = other.pipe;
-	err_pipe = other.err_pipe;
+	read_success = other.read_success;
 	timeout = other.timeout;
 	instances = other.instances;
+	original_duopipe = other.original_duopipe;
+	original_err_pipe = other.original_err_pipe;
+	pipe = other.pipe;
+	err_pipe = other.err_pipe;
+
 	++(*instances);
 	return *this;
 }
@@ -82,20 +82,16 @@ ChildProcess::~ChildProcess() {
 	}
 }
 
-pid_t ChildProcess::getPID() const {
+const pid_t ChildProcess::get_pid() const {
 	return pid;
 }
 
-const iopipe& ChildProcess::getPipe() const {
-	return pipe;
+const duopipe& ChildProcess::get_duopipe() const {
+	return original_duopipe;
 }
 
-const iopipe& ChildProcess::getReversePipe() const {
-	return reverse_pipe;
-}
-
-const opipe& ChildProcess::getReverseErr() const {
-	return reverse_err_pipe;
+const iopipe& ChildProcess::get_err_pipe() const {
+	return original_err_pipe;
 }
 
 const opipe& ChildProcess::in() const {
@@ -124,10 +120,14 @@ void ChildProcess::set_timeout(int timeout) {
 
 void ChildProcess::kill() {
 	if(is_open()) {
-		pipe.close();
-		err_pipe.close();
-		reverse_pipe.close();
-		reverse_err_pipe.close();
+		close_pipes();
 		::kill(pid, SIGKILL);
 	}
+}
+
+void ChildProcess::close_pipes() {
+	pipe.close();
+	err_pipe.close();
+	original_duopipe.close();
+	original_err_pipe.close();
 }
