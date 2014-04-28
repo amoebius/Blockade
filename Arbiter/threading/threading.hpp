@@ -147,7 +147,7 @@ namespace Threading {
 
 	private:
 		// Record the result type:
-		typedef typeof((*((FunctorT*)0))()) ResultT;
+		typedef decltype(((FunctorT *)NULL)->operator()()) ResultT;
 
 		// Mutex to manage state of the thread:
 		Mutex lock;
@@ -217,7 +217,7 @@ namespace Threading {
 		Threaded(FunctorT functor, int priority = HT::Thread::Priority::Normal) : thread(new ThreadRunner<FunctorT>(functor,priority)) {}
 
 		// Get the functor's return type:
-		typedef typeof((*((FunctorT*)0))()) ResultT;
+		typedef decltype(((FunctorT *)NULL)->operator()()) ResultT;
 
 		// Methods for getting the result, as if this were a functor:
 		inline ResultT operator()() {

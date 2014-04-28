@@ -39,9 +39,16 @@ try:
 except Exception as e:
 	raise RuntimeError("Error in retreiving the bot's color: " + str(type(e)) + " - " + str(e))
 
-
+# TEMPPP
+from sys import stderr
+stderr.write("RECEIVING SIZE AND PID\n")
+stderr.flush()
 size, pid = map(int, raw_input().split())
+stderr.write("RECEIVING X0 AND Y0\n")
+stderr.flush()
 x0, y0 = map(int, raw_input().split())
+stderr.write("RECEIVING X1 AND Y1\n")
+stderr.flush()
 x1, y1 = map(int, raw_input().split())
 
 pos = [(x0, size-1 - y0), (x1, size-1 - y1)] if pid else [(x0,y0), (x1,y1)]
@@ -54,7 +61,13 @@ moves = [dict((s,i) for i,s in enumerate('URDL')), dict((s,i) for i,s in enumera
 running = True
 while running:
 
+	stderr.write("AWAITING COMMAND\n")
+	stderr.flush()
+
 	command = raw_input().split()
+
+	stderr.write("COMMAND RECEIVED: " + str(command) + "!\n")
+	stderr.flush()
 
 	if command[0] == 'move':
 		player, x, y = map(int, command[1:])

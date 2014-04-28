@@ -11,25 +11,37 @@
 
 #include <sys/types.h>
 #include <signal.h>
+#include <cstdlib>
 #include <istream>
+#include <iostream>
 
 #include "ChildProcess.hpp"
 #include "pipe/duopipe.hpp"
 
 
-#include <iostream>  // TPMETPMPTPMPMMPEPPPP
-using namespace std; // TEMPMMPMPMPMMPMPMMP
-ChildProcess::ChildProcess(std::string filename, char * const argv[], int timeout) : filename(filename), timeout(timeout) {
+ChildProcess::ChildProcess(std::string filename, std::vector<std::string> argv, int timeout) : filename(filename), timeout(timeout), read_success(true) {
+	
 	duopipe link;
 	iopipe errLink;
 
 	pid = fork();
 	if(pid == 0) {
+		// Redirect IO:
 		link.bind_back();
 		link.close();
 		errLink.bind_err();
 		errLink.close();
-		execv(filename.c_str(), argv);
+	
+		// Convert the arguments into the required format:
+		char **arguments = new char* [argv.size()+1];
+		for(int i = 0; i < argv.size(); ++i) arguments[i] = (char *)argv[i].c_str();
+		arguments[argv.size()] = NULL;
+
+		execv(filename.c_str(), arguments);
+		// Welp.  We really shouldn't be here.  Abandonnnn ship.
+		std::cerr << "Failed to start bot '" << filename << "'...  Aborting subprocess." << std::endl;
+		sleep(500);
+		exit(EXIT_FAILURE);
 	}
 
 	pipe = link.front();

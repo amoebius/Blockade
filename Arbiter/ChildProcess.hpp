@@ -15,16 +15,19 @@
 
 #include <unistd.h>
 #include <string>
+#include <vector>
 #include <cstddef>
 
 #include "pipe/iopipe.hpp"
 #include "threading/threading.hpp"
 using namespace cpipe;
 
+
 class ChildProcess {
 
 public:
-	explicit ChildProcess(std::string filename, char * const argv[] = NULL, int timeout = -1);
+	explicit ChildProcess(std::string filename, std::vector<std::string> argv, int timeout = -1);
+	explicit ChildProcess(std::string filename, int timeout = -1) : ChildProcess(filename, std::vector<std::string>(1, filename), timeout) {}
 	ChildProcess(const ChildProcess& other);
 	ChildProcess();
 	ChildProcess& operator = (const ChildProcess& other);
@@ -41,19 +44,49 @@ public:
 
 	const std::string filename;
 
+
 	template <typename T>
-	ChildProcess& operator >> (T& rhs) {
-		//Threading::Threaded<ReadFunctor<T> > readOperation = Threading::Create(ReadFunctor<T>(out(), rhs));
-		//read_success = readOperation.join(timeout, false);
-		//if(!read_success) readOperation.cancel();
-		read_success = (pipe >> rhs);
+	inline ChildProcess& operator >> (T& rhs) {
+		if (!read_success || !pipe.is_open()) {
+			//cout << "READ ABORTED!" << endl;
+			read_success = false;
+		} else {
+			//cout << "Proceeding to read..." << endl;
+			//Threading::Threaded<ReadFunctor<T> > readOperation = Threading::Create(ReadFunctor<T>(out(), rhs));
+			//cout << "Reading with timeout: " << timeout << endl;
+			//read_success = readOperation.join(timeout, false);
+			//if(!read_success) readOperation.cancel();
+			read_success = (pipe >> rhs);
+			//cout << "Read result: " << read_success << endl;
+		}
 		return *this;
 	}
 
 	template <typename T>
-	inline std::ostream& operator << (T& rhs) {
+	inline opipe& operator << (const T& rhs) {
 		return pipe << rhs;
 	}
+
+	// Support std::endl and other manipulators:
+	inline ChildProcess& operator >> (std::istream&(*manipulator)(std::istream&)) {
+		if (!read_success || !pipe.is_open()) {
+			//cout << "READ ABORTED!" << endl;
+			read_success = false;
+		} else {
+			//cout << "Proceeding to read..." << endl;
+			//Threading::Threaded<ManipulatorFunctor> readOperation = Threading::Create(ManipulatorFunctor(out(), manipulator));
+			//read_success = readOperation.join(timeout, false);
+			//if(!read_success) readOperation.cancel();
+			read_success = (pipe >> manipulator);
+			//cout << "Read result: " << read_success << endl;
+		}
+		return *this;
+	}
+
+	inline opipe& operator << (std::ostream&(*manipulator)(std::ostream&)) {
+		return pipe << manipulator;
+	}
+
 
 	inline operator bool () {
 		return read_success;
@@ -82,7 +115,7 @@ private:
 	int *instances;
 
 
-	// Helper functor for reads with timeouts:
+	// Helper functors for reads with timeouts:
 	template <typename T>
 	class ReadFunctor {
 		std::istream& stream;
@@ -91,6 +124,15 @@ private:
 		ReadFunctor(std::istream& stream, T& result) : stream(stream), result(result) {}
 		const bool operator () () {
 			return stream >> result;
+		}
+	};
+	class ManipulatorFunctor {
+		std::istream& stream;
+		std::istream& (*manipulator)(std::istream&);
+	public:
+		ManipulatorFunctor(std::istream& stream, std::istream& (*manipulator)(std::istream&)) : stream(stream), manipulator(manipulator) {}
+		const bool operator () () {
+			return stream >> manipulator;
 		}
 	};
 

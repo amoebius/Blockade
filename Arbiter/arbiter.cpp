@@ -9,6 +9,11 @@
  * -------------------------------------------
  */
 
+
+// TODO:
+//  - Remove the error messages for sending things to the bots.  The timeouts on reading should handle this.
+
+
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
@@ -83,7 +88,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	ChildProcess bot[2] = { ChildProcess(programs[0], NULL, MAX_TURN_TIME), ChildProcess(programs[1], NULL, MAX_TURN_TIME) };
+	ChildProcess bot[2] = { ChildProcess(programs[0], MAX_TURN_TIME), ChildProcess(programs[1], MAX_TURN_TIME) };
 	int player_id[2], player_x[2], player_y[2];
 
 	fo(i,2) player_x[i] = board_size / 2;
@@ -92,7 +97,7 @@ int main(int argc, char* argv[]) {
 
 	int turn = 0, winner;
 	bool game_running = true;
-
+	
 	string names[2];
 	fo(i,2) if(!(bot[i] >> names[i])) {
 		cout << i << " Error: Unable to read bot name." << endl;
@@ -112,14 +117,40 @@ int main(int argc, char* argv[]) {
 	}
 
 	if(game_running) {
-		fo(i,2) bot[i] << board_size << ' ' << i << endl;
-		fo(i,2) fo(j,2) bot[i] << player_x[j] << ' ' << player_y[j] << endl;
+		fo(i,2)  if(!(bot[i] << board_size && bot[i] << ' ' && bot[i] << i && bot[i] << endl)) {//if(!(bot[i] << board_size << ' ' << i << endl)) {
+			cout << i << " Error: Unable to send board size and player id." << endl;
+			game_running = false;
+			winner = 1 - i;
+			break;
+		}
+	}
 
+	if(game_running) {
+		fo(i,2) fo(j,2) if(!(bot[i] << player_x[j] << ' ' << player_y[j] << endl)) {
+			cout << i << " Error: Unable to send player coordinates." << endl;
+			game_running = false;
+			winner = 1 - i;
+			
+			// Break:
+			i = 2;
+			j = 2;
+		}
+	}
+
+	if(game_running) {
 		cout << names[0] << " versus " << names[1] << " size " << board_size << endl;
 		fo(i,2) cout << i << " starts at " << player_x[i] << ' ' << player_y[i] << endl;
 		fo(i,2) cout << i << " RGB " << color_red[i] << ' ' << color_green[i] << ' ' << color_blue[i] << endl;
 
-		fo(i,2) fo(j,2) bot[i] << str_move << ' ' << j << ' ' << player_x[j] << ' ' << player_y[j] << endl;
+		fo(i,2) fo(j,2) if(!(bot[i] << str_move << ' ' << j << ' ' << player_x[j] << ' ' << player_y[j] << endl)) {
+			cout << i << " Error: Unable to send '" << str_move << "' command." << endl;
+			game_running = false;
+			winner = 1 - i;
+
+			// Break:
+			i = 2;
+			j = 2;
+		}
 	}
 
 	while(game_running) {
@@ -231,9 +262,17 @@ int main(int argc, char* argv[]) {
 
 	cout << winner << " wins" << endl;
 
-	fo(i,2) bot[i] << str_end << endl;
+	fo(i,2) {
+		bot[i] << str_end << endl;
+	}
 
-	fo(i,2) if(logfiles[i]) (*logfiles[i]) << "~~ BEGIN LOG ~~\n" << ((istream&)bot[i].err()).rdbuf() << "\n~~ End of Log ~~" << endl;
+	fo(i,2) if(logfiles[i]) {
+		(*logfiles[i]) << "~~ BEGIN LOG ~~\n";
+		const int BUFFER_SIZE = 1000;
+		char buffer[BUFFER_SIZE + 1];
+		while(((istream&)bot[i].err()).readsome(buffer, BUFFER_SIZE)) (*logfiles[i]) << buffer;
+		(*logfiles[i]) << "\n~~ End of Log ~~" << endl;
+	}
 
 	return EXIT_SUCCESS;
 }

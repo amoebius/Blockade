@@ -24,6 +24,7 @@
 
 #include "opipe.hpp"
 #include <unistd.h>
+#include <signal.h>
 
 
 namespace cpipe {
@@ -72,13 +73,16 @@ namespace cpipe {
 	/***********************************************************************************************************/
 
 	// Constructs a 'closed' opipe - sets isOpen to false:
-	opipe::opipe() : pipe(NULL), isOpen(false) {}
+	opipe::opipe() : pipe(NULL), isOpen(false), write_success(false) {}
 
 	// Constructs an opipe from the given file descriptor - creates a new opipe_ref, and marks the opipe open:
-	opipe::opipe(int fd) : pipe(new opipe_ref(fd)), isOpen(true) {}
+	opipe::opipe(int fd) : pipe(new opipe_ref(fd)), isOpen(true), write_success(true) {
+		// STOP SIGPIPE >:C
+		signal(SIGPIPE, SIG_IGN);
+	}
 
 	// Copy constructor - copies the state of the other object, and increments the ipipe_ref's reference count if necessary:
-	opipe::opipe(const opipe& other) : pipe(other.pipe), isOpen(other.isOpen) {
+	opipe::opipe(const opipe& other) : pipe(other.pipe), isOpen(other.isOpen), write_success(other.write_success) {
 		if(isOpen) pipe->inc();
 	}
 
@@ -88,6 +92,7 @@ namespace cpipe {
 			close();
 			pipe = other.pipe;
 			isOpen = other.isOpen;
+			write_success = other.write_success;
 			if(isOpen) pipe->inc();
 		}
 		return *this;

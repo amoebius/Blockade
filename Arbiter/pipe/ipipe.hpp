@@ -50,6 +50,11 @@ namespace cpipe {
 				return stream >> rhs; // NB: Because reference counting, this *should* always be valid.
 			}
 
+			// Support manipulators:
+			inline std::istream& operator >> (std::istream&(*manipulator)(std::istream&)) {
+				return stream >> manipulator;
+			}
+
 			// Cast to an istream:
 			operator std::istream& ();
 
@@ -90,9 +95,28 @@ namespace cpipe {
 
 		// Provide stream extraction operator:
 		template <typename T>
-		inline std::istream& operator >> (T& rhs) const {
-			if(!isOpen) throw std::ios_base::failure("Input pipe not open.");
-			return *pipe >> rhs;  // NB: Invalid if in a closed state.
+		inline ipipe& operator >> (T& rhs) {
+			if(!isOpen || !read_success) {
+				read_success = false;
+			} else {
+				read_success = (*pipe >> rhs);  // NB: Invalid if in a closed state.
+			}
+			return *this;
+		}
+
+		// Support manipulators:
+		inline ipipe& operator >> (std::istream&(*manipulator)(std::istream&)) {
+			if(!isOpen || !read_success) {
+				read_success = false;
+			} else {
+				read_success = (*pipe >> manipulator);
+			}
+			return *this;
+		}
+
+
+		inline operator bool () const {
+			return read_success;
 		}
 
 	private:
@@ -100,6 +124,8 @@ namespace cpipe {
 		ipipe_ref *pipe;
 		// Open state:
 		bool isOpen;
+		// 'Was last operation successful' boolean:
+		bool read_success;
 	};
 
 

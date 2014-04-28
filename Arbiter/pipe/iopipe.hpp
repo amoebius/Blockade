@@ -119,17 +119,28 @@ namespace cpipe {
 		// Cast to an opipe:
 		operator opipe () const;
 
-		// Provide the stream insertion operator:
-		template <typename T>
-		inline std::ostream& operator << (const T& rhs) const {
-			return out << rhs;
-		}
 
 		// Provide the stream extraction operator:
 		template <typename T>
-		inline std::istream& operator >> (T& rhs) const {
+		inline ipipe& operator >> (T& rhs) {
 			return in >> rhs;
 		}
+
+		// Provide the stream insertion operator:
+		template <typename T>
+		inline opipe& operator << (const T& rhs) {
+			return out << rhs;
+		}
+
+		// Support std::endl and other manipulators:
+		inline ipipe& operator >> (std::istream&(*manipulator)(std::istream&)) {
+			return in >> manipulator;
+		}
+
+		inline opipe& operator << (std::ostream&(*manipulator)(std::ostream&)) {
+			return out << manipulator;
+		}
+			
 
 	private:
 		// The open status of the iopipe:

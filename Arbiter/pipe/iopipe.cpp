@@ -43,7 +43,7 @@ namespace cpipe {
 	iopipe::iopipe(int in_fd, int out_fd) : in(in_fd), out(out_fd), isOpen(true) {}
 
 	// Binds the given ipipe and opipe to the iopipe, useful for combining two separate streams into a unified interface:
-	iopipe::iopipe(ipipe in, opipe out) : in(in), out(out) {}
+	iopipe::iopipe(ipipe in, opipe out) : in(in), out(out), isOpen(true) {}
 
 	// Copy constructor - simply copy the other iopipe's member variables:
 	iopipe::iopipe(const iopipe& other) : in(other.in), out(other.out), isOpen(other.isOpen) {}

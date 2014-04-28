@@ -24,6 +24,7 @@
 
 #include "ipipe.hpp"
 #include <unistd.h>
+#include <signal.h>
 
 
 namespace cpipe {
@@ -72,13 +73,16 @@ namespace cpipe {
 	/***********************************************************************************************************/
 
 	// Constructs a 'closed' ipipe - sets isOpen to false:
-	ipipe::ipipe() : pipe(NULL), isOpen(false) {}
+	ipipe::ipipe() : pipe(NULL), isOpen(false), read_success(false) {}
 
 	// Constructs an ipipe from the given file descriptor - creates a new ipipe_ref, and marks the ipipe open:
-	ipipe::ipipe(int fd) : pipe(new ipipe_ref(fd)), isOpen(true) {}
+	ipipe::ipipe(int fd) : pipe(new ipipe_ref(fd)), isOpen(true), read_success(true) {
+		// STOP SIGPIPE >:C
+		signal(SIGPIPE, SIG_IGN);
+	}
 
 	// Copy constructor - copies the state of the other object, and increments the ipipe_ref's reference count if necessary:
-	ipipe::ipipe(const ipipe& other) : pipe(other.pipe), isOpen(other.isOpen) {
+	ipipe::ipipe(const ipipe& other) : pipe(other.pipe), isOpen(other.isOpen), read_success(other.read_success) {
 		if(isOpen) pipe->inc();
 	}
 
@@ -88,6 +92,7 @@ namespace cpipe {
 			close();
 			pipe = other.pipe;
 			isOpen = other.isOpen;
+			read_success = other.read_success;
 			if(isOpen) pipe->inc();
 		}
 		return *this;

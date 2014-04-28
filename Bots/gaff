@@ -1,2 +1,2 @@
 #!/bin/bash
-python -u `dirname $0`/py_matts1/blockade.py gaff
+python -u ../Bots/py_matts1/blockade.py gaff

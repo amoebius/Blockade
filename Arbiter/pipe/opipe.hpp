@@ -19,7 +19,7 @@
 #include <ext/stdio_filebuf.h> // NB: Non-standard, see note in "iopipe.hpp".
 typedef __gnu_cxx::stdio_filebuf<char> fdbuffer;  // Buffer that can wrap a POSIX file descriptor.
 
-
+#include <iostream> // TEMPPPPP
 namespace cpipe {
 
 	/* opipe:
@@ -49,6 +49,12 @@ namespace cpipe {
 			inline std::ostream& operator << (const T& rhs) {
 				return stream << rhs; // NB:  Because reference counting, this *should* always be valid.
 			}
+
+			// Support std::endl and other manipulators:
+			inline std::ostream& operator << (std::ostream&(*manipulator)(std::ostream&)) {
+				return stream << manipulator;
+			}
+
 
 			// Cast to an ostream:
 			operator std::ostream& ();
@@ -92,9 +98,28 @@ namespace cpipe {
 
 		// Provide stream insertion operator:
 		template <typename T>
-		inline std::ostream& operator << (const T& rhs) const {
-			if(!isOpen) throw std::ios_base::failure("Output pipe not open.");
-			return *pipe << rhs;
+		inline opipe& operator << (const T& rhs) {
+			if(!isOpen || !write_success) {
+				write_success = false;
+			} else {
+				write_success = (*pipe << rhs);
+			}
+			return *this;
+		}
+
+		// Support std::endl and other manipulators:
+		inline opipe& operator << (std::ostream&(*manipulator)(std::ostream&)) {
+			if(!isOpen || !write_success) {
+				write_success = false;
+			} else {
+				write_success = (*pipe << manipulator);
+			}
+			return *this;
+		}
+
+
+		inline operator bool () const {
+			return write_success;
 		}
 
 	private:
@@ -102,6 +127,8 @@ namespace cpipe {
 		opipe_ref *pipe;
 		// Open state:
 		bool isOpen;
+		// 'Was last operation successful' boolean:
+		bool write_success;
 	};
 
 
