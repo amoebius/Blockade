@@ -50,9 +50,13 @@ public:
 		if (!read_success || !pipe.is_open()) {
 			read_success = false;
 		} else {
-			Threading::Threaded<ReadFunctor<T> > readOperation = Threading::Create(ReadFunctor<T>(out(), rhs));
-			read_success = readOperation.join(timeout, false);
-			if(!read_success) readOperation.cancel();
+			if(timeout > 0) {
+				Threading::Threaded<ReadFunctor<T> > readOperation = Threading::Create(ReadFunctor<T>(out(), rhs));
+				read_success = readOperation.join(timeout, false);
+				if(!read_success) readOperation.cancel();
+			} else {
+				read_success = (pipe >> rhs);
+			}
 		}
 		return *this;
 	}
