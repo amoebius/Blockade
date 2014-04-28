@@ -67,6 +67,26 @@
 extern "C" {
 #endif
 
+#ifdef HT_WIN_THREADS
+
+struct ht_mutex_t
+{
+  CRITICAL_SECTION  mutex;
+  DWORD             thread;
+};
+#else /* !HT_WIN_THREADS */
+#include <pthread.h>
+#ifndef HL_WINDOWS_APP
+#include <sys/errno.h>
+#endif /* HL_WINDOWS_APP */
+
+
+struct ht_mutex_t
+{
+  pthread_mutex_t   mutex;
+};
+#endif /* HT_WIN_THREADS */
+
 #ifdef __cplusplus
 }  /* extern "C" */
 #endif

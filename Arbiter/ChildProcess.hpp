@@ -48,16 +48,11 @@ public:
 	template <typename T>
 	inline ChildProcess& operator >> (T& rhs) {
 		if (!read_success || !pipe.is_open()) {
-			//cout << "READ ABORTED!" << endl;
 			read_success = false;
 		} else {
-			//cout << "Proceeding to read..." << endl;
-			//Threading::Threaded<ReadFunctor<T> > readOperation = Threading::Create(ReadFunctor<T>(out(), rhs));
-			//cout << "Reading with timeout: " << timeout << endl;
-			//read_success = readOperation.join(timeout, false);
-			//if(!read_success) readOperation.cancel();
-			read_success = (pipe >> rhs);
-			//cout << "Read result: " << read_success << endl;
+			Threading::Threaded<ReadFunctor<T> > readOperation = Threading::Create(ReadFunctor<T>(out(), rhs));
+			read_success = readOperation.join(timeout, false);
+			if(!read_success) readOperation.cancel();
 		}
 		return *this;
 	}
@@ -68,21 +63,6 @@ public:
 	}
 
 	// Support std::endl and other manipulators:
-	inline ChildProcess& operator >> (std::istream&(*manipulator)(std::istream&)) {
-		if (!read_success || !pipe.is_open()) {
-			//cout << "READ ABORTED!" << endl;
-			read_success = false;
-		} else {
-			//cout << "Proceeding to read..." << endl;
-			//Threading::Threaded<ManipulatorFunctor> readOperation = Threading::Create(ManipulatorFunctor(out(), manipulator));
-			//read_success = readOperation.join(timeout, false);
-			//if(!read_success) readOperation.cancel();
-			read_success = (pipe >> manipulator);
-			//cout << "Read result: " << read_success << endl;
-		}
-		return *this;
-	}
-
 	inline opipe& operator << (std::ostream&(*manipulator)(std::ostream&)) {
 		return pipe << manipulator;
 	}
@@ -124,15 +104,6 @@ private:
 		ReadFunctor(std::istream& stream, T& result) : stream(stream), result(result) {}
 		const bool operator () () {
 			return stream >> result;
-		}
-	};
-	class ManipulatorFunctor {
-		std::istream& stream;
-		std::istream& (*manipulator)(std::istream&);
-	public:
-		ManipulatorFunctor(std::istream& stream, std::istream& (*manipulator)(std::istream&)) : stream(stream), manipulator(manipulator) {}
-		const bool operator () () {
-			return stream >> manipulator;
 		}
 	};
 

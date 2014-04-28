@@ -22,26 +22,6 @@
 
 #include "htinternal.h"
 
-#ifdef HT_WIN_THREADS
-
-struct ht_mutex_t
-{
-  CRITICAL_SECTION  mutex;
-  DWORD             thread;
-};
-#else /* !HT_WIN_THREADS */
-#include <pthread.h>
-#ifndef HL_WINDOWS_APP
-#include <sys/errno.h>
-#endif /* HL_WINDOWS_APP */
-
-
-struct ht_mutex_t
-{
-  pthread_mutex_t   mutex;
-};
-#endif /* HT_WIN_THREADS */
-
 HL_EXP int HL_APIENTRY htMutexInit(HTmutex *mutex)
 {
 	if(mutex == NULL)

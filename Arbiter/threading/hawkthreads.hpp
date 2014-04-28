@@ -16,11 +16,6 @@
 #include "HT/hawkthreads.h"
 
 
-// TEMPP:
- #include <iostream>
- #include <pthread.h>
- using namespace std;
-
 // Wrapper functions to provide a nicer interface:
 namespace HT {
 
@@ -75,11 +70,11 @@ namespace HT {
 		inline bool Destroy(HTmutex &mutex) {
 			return htMutexDestroy(&mutex) == 0;
 		}
-		inline bool Lock(const HTmutex &mutex) {
-			return htMutexLock(&(HTmutex &)mutex) == 0;
+		inline bool Lock(HTmutex &mutex) {
+			return htMutexLock(&mutex) == 0;
 		}
-		inline bool Unlock(const HTmutex &mutex) {
-			return htMutexUnlock(&(HTmutex &)mutex) == 0;
+		inline bool Unlock(HTmutex &mutex) {
+			return htMutexUnlock(&mutex) == 0;
 		}
 	}
 
@@ -93,9 +88,6 @@ namespace HT {
 		}
 		inline bool Wait(HTcond &cond, HTmutex &mutex, int timeout) {
 			int rv = htCondWait(&cond, &mutex, timeout);
-			if(rv != 0) {
-				cout << "ERROR: htCondWait returned " << rv << endl;
-			}
 			return rv == 0;
 		}
 		inline bool Signal(HTcond &cond) {

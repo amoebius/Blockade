@@ -50,11 +50,6 @@ namespace cpipe {
 				return stream >> rhs; // NB: Because reference counting, this *should* always be valid.
 			}
 
-			// Support manipulators:
-			inline std::istream& operator >> (std::istream&(*manipulator)(std::istream&)) {
-				return stream >> manipulator;
-			}
-
 			// Cast to an istream:
 			operator std::istream& ();
 
@@ -103,17 +98,6 @@ namespace cpipe {
 			}
 			return *this;
 		}
-
-		// Support manipulators:
-		inline ipipe& operator >> (std::istream&(*manipulator)(std::istream&)) {
-			if(!isOpen || !read_success) {
-				read_success = false;
-			} else {
-				read_success = (*pipe >> manipulator);
-			}
-			return *this;
-		}
-
 
 		inline operator bool () const {
 			return read_success;

@@ -78,10 +78,10 @@ namespace Threading {
 		}
 
 		// Locking and unlocking of the mutex:
-		inline bool Lock() const {
+		inline bool Lock() {
 			return HT::Mutex::Lock(mutex);
 		}
-		inline bool Unlock() const {
+		inline bool Unlock() {
 			return HT::Mutex::Unlock(mutex);
 		}
 	};

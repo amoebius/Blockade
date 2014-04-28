@@ -115,11 +115,16 @@ HL_EXP int HL_APIENTRY htCondWait(HTcond *cond, HTmutex *mutex, int timeout)
     if(timeout <= 0)
     {
         HTcond cv = *cond;
+        HTmutex mx = *mutex;
 
 #ifdef HT_WIN_THREADS
         DWORD result;
 
+        // This is incredibly dodgy and broken...  What I really want is my own library
+        // on top of pthreads - screw windows threading >:C
+        htMutexUnlock(mutex);
         result = WaitForMultipleObjects (2,cv->events_, FALSE, INFINITE);
+        htMutexLock(mutex);
         if(result == WAIT_FAILED)
         {
             return EINVAL;
@@ -127,8 +132,9 @@ HL_EXP int HL_APIENTRY htCondWait(HTcond *cond, HTmutex *mutex, int timeout)
 #else
         int result = 0;
 
-        (void)pthread_mutex_lock((pthread_mutex_t *)mutex);
-        result = pthread_cond_wait((pthread_cond_t *)&cv->cond, (pthread_mutex_t *)mutex);
+        pthread_mutex_t *p_mutex = (pthread_mutex_t *)&mx->mutex;
+        (void)pthread_mutex_lock(p_mutex);
+        result = pthread_cond_wait((pthread_cond_t *)&cv->cond, p_mutex);
         if(result != 0)
         {
             return result;
@@ -138,11 +144,15 @@ HL_EXP int HL_APIENTRY htCondWait(HTcond *cond, HTmutex *mutex, int timeout)
     else
     {
         HTcond cv = *cond;
+        HTmutex mx = *mutex;
 
 #ifdef HT_WIN_THREADS
         DWORD result;
 
+        // Also incredibly broken and dodgy:
+        htMutexUnlock(mutex);
         result = WaitForMultipleObjects (2, cv->events_, FALSE, (DWORD)timeout);
+        htMutexLock(mutex);
         if(result == WAIT_FAILED)
         {
             return EINVAL;
@@ -164,9 +174,9 @@ HL_EXP int HL_APIENTRY htCondWait(HTcond *cond, HTmutex *mutex, int timeout)
         tv.tv_sec = t.time + (ms / 1000);
         tv.tv_nsec = (ms % 1000) * 1000000;
 
-        (void)pthread_mutex_lock((pthread_mutex_t *)mutex);
-        result = pthread_cond_timedwait((pthread_cond_t *)&cv->cond,
-                                            (pthread_mutex_t *)mutex, &tv);
+        pthread_mutex_t *p_mutex = (pthread_mutex_t *)&mx->mutex;
+        (void)pthread_mutex_lock(p_mutex);
+        result = pthread_cond_timedwait((pthread_cond_t *)&cv->cond, p_mutex, &tv);
         if(result == ETIMEDOUT)
         {
             return ETIMEDOUT;
