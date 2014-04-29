@@ -41,7 +41,9 @@ static unsigned  __stdcall threadfunc(void *arg)
     func = ((ThreadParms *)arg)->func;
     args = ((ThreadParms *)arg)->arg;
     /* any thread specific data goes here since we are now running in the new thread */
-    (void)htThreadSetKeyData(prioritykey, (void *)((ThreadParms *)arg)->priority);
+    int *priority_ptr = (int *)malloc(sizeof(int));
+    *priority_ptr = ((ThreadParms *)arg)->priority;
+    (void)htThreadSetKeyData(prioritykey, (void *)priority_ptr);
     free(arg);
 
     return (unsigned)((*func)(args));
@@ -81,10 +83,14 @@ static void *threadfunc(void *arg)
     func = ((ThreadParms *)arg)->func;
     args = ((ThreadParms *)arg)->arg;
     /* any thread specific data goes here since we are now running in the new thread */
-    (void)htThreadSetKeyData(prioritykey, (void *)((ThreadParms *)arg)->priority);
+    int *priority_ptr = (int *)malloc(sizeof(int));
+    *priority_ptr = ((ThreadParms *)arg)->priority;
+    (void)htThreadSetKeyData(prioritykey, (void *)priority_ptr);
     free(arg);
 
-    return ((*func)(args));
+    void *result = ((*func)(args));
+    free(priority_ptr);
+    return result;
 }
 
 #include <pthread.h>
@@ -250,22 +256,24 @@ HL_EXP int HL_APIENTRY htThreadEqual(HThreadID threadID1, HThreadID threadID2)
 
 HL_EXP int HL_APIENTRY htThreadGetPriority(void)
 {
-    int p;
+    int *p;
 
     if(prioritykey == KEY_NULL)
     {
         prioritykey = htThreadNewKey();
     }
-    p = (int)htThreadGetKeyData(prioritykey);
-    if(p == 0)
+    p = (int *)htThreadGetKeyData(prioritykey);
+    if(p == NULL)
     {
         /* key has never been set, so assume HT_THREAD_PRIORITY_NORMAL */
-        (void)htThreadSetKeyData(prioritykey, (void *)HT_THREAD_PRIORITY_NORMAL);
+	p = (int *)malloc(sizeof(int));
+	*p = HT_THREAD_PRIORITY_NORMAL;
+        (void)htThreadSetKeyData(prioritykey, (void *)p);
         return HT_THREAD_PRIORITY_NORMAL;
     }
     else
     {
-        return p;
+        return *p;
     }
 }
 
@@ -313,7 +321,12 @@ HL_EXP int HL_APIENTRY htThreadSetPriority(int priority)
     }
     else
     {
-        (void)htThreadSetKeyData(prioritykey, (void *)priority);
+        int *ptr = (int *)htThreadGetKeyData(prioritykey);
+        if(ptr == NULL) {
+            ptr = (int *)malloc(sizeof(int));
+            (void)htThreadSetKeyData(prioritykey, (void *)ptr);
+        }
+        *ptr = priority;
         return 0;
     }
 #else
@@ -346,7 +359,12 @@ HL_EXP int HL_APIENTRY htThreadSetPriority(int priority)
     else
     {
         priority++;
-        (void)htThreadSetKeyData(prioritykey, (void *)priority);
+        int *ptr = (int *)htThreadGetKeyData(prioritykey);
+        if(ptr == NULL) {
+            ptr = (int *)malloc(sizeof(int));
+            (void)htThreadSetKeyData(prioritykey, (void *)ptr);
+        }
+        *ptr = priority;
         return 0;
     }
 #endif
@@ -387,7 +405,7 @@ HL_EXP HTkey HL_APIENTRY htThreadNewKey(void)
         }
         else
         {
-            return (HTkey)*key;
+            return (HTkey)key;
         }
     }
 #endif
@@ -407,7 +425,7 @@ HL_EXP int HL_APIENTRY htThreadSetKeyData(HTkey key, void* data)
         return 0;
 #else
     /* POSIX systems */
-    return pthread_setspecific((pthread_key_t)key, data);
+    return pthread_setspecific(*(pthread_key_t *)key, data);
 #endif
 }
 
@@ -419,7 +437,7 @@ HL_EXP void* HL_APIENTRY htThreadGetKeyData(HTkey key)
 
 #else
     /* POSIX systems */
-    return (void *)pthread_getspecific((pthread_key_t)key);
+    return (void *)pthread_getspecific(*(pthread_key_t *)key);
 #endif
 }
 
@@ -438,7 +456,7 @@ HL_EXP int HL_APIENTRY htThreadDeleteKey(HTkey key)
     }
 #else
     /* POSIX systems */
-    return pthread_key_delete((pthread_key_t)key);
+    return pthread_key_delete(*(pthread_key_t *)key);
 #endif
 }
 
