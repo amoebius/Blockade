@@ -1,3 +1,4 @@
+#!/usr/bin/python
 from sys import argv
 
 if len(argv) != 2:
@@ -58,18 +59,18 @@ while running:
 
 	if command[0] == 'move':
 		player, x, y = map(int, command[1:])
-		if pid: y = size-1 - y
+		if pid == 1: y = size-1 - y
 		pos[player] = (x,y)
 
 	elif command[0] == 'block':
 		player, x, y = map(int, command[1:])
-		if pid: y = size-1 - y
+		if pid == 1: y = size-1 - y
 		grid[y][x] = True
 
 	elif command[0] == 'turn':
 		
 		try:
-			action = bot.move(map(list,grid), pos[pid], pos[1-pid])
+			action = bot.move(map(list,grid), pos[pid][0], pos[pid][1], pos[1-pid][0], pos[1-pid][1])
 		except Exception as e:
 			raise RuntimeError("Error in retrieving the bot's move: " + str(type(e)) + " - " + str(e))
 

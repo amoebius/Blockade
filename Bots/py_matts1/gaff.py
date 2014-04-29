@@ -10,12 +10,12 @@ moves = dict(zip('DURL', d))
 dickishness = 1
 
 c = lambda b: map(list,b)
-def b(board, (x,y)):
+def b(board, x, y):
 	nboard = c(board)
 	nboard[y][x] = True
 	return nboard
 
-def dist(board, (x,y), goal):
+def dist(board, x, y, goal):
 	q = deque()
 	q.append((0,x,y))
 	if board[y][x]: return -1
@@ -45,7 +45,7 @@ def randmin(iterable, key = lambda x: x[0] if type(x) is tuple else x):
 	return low
 
 
-def move(board, (x,y), (ox,oy)):
+def move(board, x, y, ox, oy):
 	
 	s = len(board)
 	dmove, move = randmin((d,m) for d,m in ((dist(c(board), (x+dx,y+dy), s-1), move) for move, (dx,dy) in moves.items() if 0 <= x+dx < s and 0 <= y+dy < s) if d >= 0)
