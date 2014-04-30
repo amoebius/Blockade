@@ -7,9 +7,7 @@ from random import randint
 d = ((0,1), (0,-1), (1,0), (-1,0))
 moves = dict(zip('DURL', d))
 
-dickishness = 1
-
-c = lambda b: map(list,b)
+c = lambda board: list(list(row) for row in board)
 def b(board, x, y):
 	nboard = c(board)
 	nboard[y][x] = True
@@ -32,7 +30,7 @@ def dist(board, x, y, goal):
 	return -1
 
 def randmin(iterable, key = lambda x: x[0] if type(x) is tuple else x):
-	iterator = iter(iterable)
+	iterator = iter(iterable)	
 	low = next(iterator)
 	count = 1
 	for elem in iterator:
@@ -44,16 +42,43 @@ def randmin(iterable, key = lambda x: x[0] if type(x) is tuple else x):
 			count += 1
 	return low
 
+def dickishness_metric(board):
+	covered = sum(sum(1 if board[y][x] else 0 for x in range(len(board))) for y in range(len(board)))
+	uncovered = len(board)**2 - covered
+	if covered > uncovered:
+		return 0
+	else:
+		return len(board)**2 / (covered+1)**1.1
 
 def move(board, x, y, ox, oy):
-	
 	s = len(board)
-	dmove, move = randmin((d,m) for d,m in ((dist(c(board), (x+dx,y+dy), s-1), move) for move, (dx,dy) in moves.items() if 0 <= x+dx < s and 0 <= y+dy < s) if d >= 0)
+	dmove, move = randmin(
+		(d,m)
+		for d,m in (
+			(dist(c(board), x+dx, y+dy, s-1), move)
+			for move, (dx,dy) in moves.items()
+			if 0 <= x+dx < s and 0 <= y+dy < s
+		)
+		if d >= 0
+	)
 	
+	if y == 0:
+		return move
+
 	try:
-		dblock, block = randmin((mydist - theirdist, block) for mydist, theirdist, block in ((dist(b(board,(bx,by)), (x,y), s-1), dist(b(board,(bx,by)), (ox,oy), 0), (bx,by)) for by in range(s) for bx in range(s) if not board[by][bx]) if mydist >= 0 and theirdist >= 0)
-		dblock = dblock - (dmove+1 - dist(c(board), (ox,oy), 0))
+		dblock, block = randmin(
+			(mydist - theirdist, block)
+			for mydist, theirdist, block in (
+				(dist(b(board,bx,by), x, y, s-1), dist(b(board,bx,by), ox, oy, 0), (bx,by))
+				for by in range(s)
+				for bx in range(s)
+				if not board[by][bx]
+			)
+			if mydist >= 0 and theirdist >= 0
+		)
+
 	except StopIteration:
 		return move
 
-	return move if 0 <= dickishness * dblock else block
+	dickishness = dickishness_metric(board)
+	return move if (dmove-1 - dist(c(board), ox, oy, 0)) <= dblock - dickishness else block
