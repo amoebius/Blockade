@@ -58,7 +58,6 @@ namespace ioblock {
 		blocked = false;
 
 		fflush(stdout);
-		fflush(stderr);
 		dup2(infd, STDIN_FILENO);
 		dup2(outfd, STDOUT_FILENO);
 	}

@@ -1,4 +1,6 @@
 import os
+import sys
+
 STDIN_FILENO = 0
 STDOUT_FILENO = 1
 STDERR_FILENO = 2
@@ -12,7 +14,8 @@ blocked = False
 def block():
 	if blocked: return
 	blocked = True
-
+	
+	sys.stdout.flush()
 	os.dup2(devnull, infd)
 	os.dup2(STDERR_FILENO, STDOUT_FILENO)
 
@@ -20,5 +23,6 @@ def unblock():
 	if not blocked: return
 	blocked = False
 
+	sys.stdout.flush()
 	os.dup2(infd, STDIN_FILENO)
 	os.dup2(outfd, STDOUT_FILENO)
