@@ -31,7 +31,7 @@ using namespace cpipe;
 
 
 const string sandboxer = "sandbox";
-const int MAX_TURN_TIME = 1500;
+const int MAX_INIT_TIME = 8000, MAX_TURN_TIME = 1500;
 
 const int MIN_SIZE = 5, MAX_SIZE = 50, DEFAULT_SIZE = 25;
 bool blocked[MAX_SIZE][MAX_SIZE];
@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
 		vector<string> argv;
 		argv.push_back(sandboxer);
 		argv.push_back(programs[i]);
-		bot[i] = ChildProcess(sandboxer, argv, MAX_TURN_TIME);
+		bot[i] = ChildProcess(sandboxer, argv, MAX_INIT_TIME);
 	}
 
 	int player_id[2], player_x[2], player_y[2];
@@ -109,7 +109,7 @@ int main(int argc, char* argv[]) {
 	player_y[1] = board_size - 1;
 
 	int turn = 0, winner;
-	bool game_running = true;
+	bool game_running = true, handshake_succeeded = false;
 	
 	string names[2];
 	fo(i,2) if(!(bot[i] >> names[i])) {
@@ -121,6 +121,9 @@ int main(int argc, char* argv[]) {
 
 	int color_red[2], color_green[2], color_blue[2];
 	if(game_running) {
+		// Now that each bot has been initialised, update the amount of time we allow them on each read:
+		fo(i,2) bot[i].set_timeout(MAX_TURN_TIME);
+
 		fo(i,2) if(!(bot[i] >> color_red[i] >> color_green[i] >> color_blue[i])) {
 			cout << i << " Error: Unable to read bot color." << endl;
 			game_running = false;
@@ -130,6 +133,9 @@ int main(int argc, char* argv[]) {
 	}
 
 	if(game_running) {
+		
+		// Mark that we got to the stage of sending commands:
+		handshake_succeeded = true;
 		
 		// Log global information:
 		cout << names[0] << " versus " << names[1] << " size " << board_size << endl;
@@ -203,17 +209,21 @@ int main(int argc, char* argv[]) {
 						winner = 1 - turn;
 
 					} else if(blocked[y][x]) {
-						cout << turn << " Invalid: Square (" << x << ", " << y << ") is already blocked." << endl;
+						cout << turn << " Invalid: Tried to block square (" << x << ", " << y << "), which is already blocked." << endl;
 						game_running = false;
 						winner = 1 - turn;
 
+					} else if((x == player_x[0] && y == player_y[0]) || (x == player_x[1] && y == player_y[1])) {
+						cout << turn << " Invalid: Tried to block square (" << x << ", " << y << "), but a player is located in this square." << endl;
+						game_running = false;
+						winner = 1 - turn;
 					} else {
 						blocked[y][x] = true;
 						if(canReach(player_x[0], player_y[0], board_size-1) && canReach(player_x[1], player_y[1], 0)) {
 							cout << turn << " blocked " << x << ' ' << y << endl;
 							fo(i,2) bot[i] << str_block << ' ' << turn << ' ' << x << ' ' << y << endl;
 						} else {
-							cout << turn << " Invalid: Blocking square (" << x << ", " << y << ") blocks the path of a player." << endl;
+							cout << turn << " Invalid: Tried to block square (" << x << ", " << y << "), which blocks the path of a player." << endl;
 							game_running = false;
 							winner = 1 - turn;
 						}
@@ -252,8 +262,11 @@ int main(int argc, char* argv[]) {
 
 	cout << winner << " wins" << endl;
 
-	fo(i,2) {
-		bot[i] << str_end << endl;
+	if(handshake_succeeded) {
+		// Only send the "end" command if we got past the initial handshake:
+		fo(i,2) {
+			bot[i] << str_end << endl;
+		}
 	}
 	
 	HT::Thread::Sleep(50); // Allow a modest amount of time for the processes to gracefully shutdown.
@@ -289,8 +302,8 @@ const bool outside(int x, int y) {
 bool seen[MAX_SIZE][MAX_SIZE];
 
 const bool _canReach(int x, int y, int to) {
+	if(outside(x,y) || seen[y][x] || blocked[y][x]) return false;
 	if(y == to) return true;
-	if(seen[y][x] || outside(x,y)) return false;
 	seen[y][x] = true;
 	fo(i,4) if(_canReach(x + dx[i], y + dy[i], to)) return true;
 	return false;

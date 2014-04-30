@@ -1,18 +1,63 @@
 #!/bin/bash
-id=0
-for i in {0..999}; do
-	if [ ! -d "/tmp/box/$i/box" ]; then
-		id=$i
-		break
-	fi
-done
 
-#Run!
-isolate/isolate --box-id=$id --init > /dev/null &&
-cp $1 /tmp/box/$id/box/ &&
-name=`basename $1` &&
-chmod a+x /tmp/box/$id/box/$name &&
-isolate/isolate --box-id=$id --env=HOME=/box --mem=100000 --time=1000 --quota=1,1 --run -- ./$name
+id=-2
+`(
+if flock 10; then
+	id=1000
+	for i in {0..999}; do
+		if [ ! -d "/tmp/box/$i" ]; then
+			id=$i
+			break
+		fi
+	done
+	if [ $id -eq 1000 ]; then
+		echo "export id=$id"
+	else
+		if isolate/isolate --box-id=$id --init > /dev/null; then
+			echo "export id=$id"
+		else
+			rm -rf "/tmp/box/$id"
+			echo "export id=-1"
+		fi
+	fi
+else
+	echo "export id=-1"
+fi
+) 2>/dev/null  10>/tmp/box/lock`
+
+if [ $id -eq 1000 ]; then
+	echo "Could not find a free sandbox directory!  Please report this error." 1>&2
+	exit 1
+fi
+if [ $id -eq -1 ]; then
+	echo "Could not initialise sandbox!  Please report this error." 1>&2
+	exit 1
+fi
+if [ $id -eq -2 ]; then
+	echo "Could not obtain sandbox lock!  Please report this error." 1>&2
+	exit 1
+fi
+
+if [ ! -r "$1" ]; then
+	echo "Could not open the given configuration files.  Please report this error." 1>&2
+	exit 1
+fi
+
+
+while read -r line; do
+	key=`echo "${line%%=*}" | xargs`
+	val=`echo "${line#*=}" | xargs` 
+	if [ ! -z "$key" ]; then
+		export $key="$val"
+	fi
+done < $1
+
+
+directory=$(dirname $1)
+
+(cd $directory &&
+cp $files /tmp/box/$id/box/) &&
+isolate/isolate --box-id=$id --env=HOME=/box --mem=100000 --time=1000 --quota=1,1 --run -- $run
 
 # Clean up:
 isolate/isolate --box-id=$id --cleanup

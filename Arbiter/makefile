@@ -9,7 +9,7 @@ HEADERS = arbiter.hpp ChildProcess.hpp \
           threading/HT/hawklib.h threading/HT/hawkthreads.h threading/HT/htinternal.h
 
 all: $(SOURCES) $(HEADERS)
-	g++ $(SOURCES) -o arbiter -g -std=c++11
+	g++ $(SOURCES) -o arbiter -pthread -O3 -std=c++11
 
 %.c:
 	@echo
