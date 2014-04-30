@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
 
 	string programs[2];
 	board_size = DEFAULT_SIZE;
-	ofstream *logfiles[2] = {NULL, NULL};
+	string logfiles[2];
 
 	if (argc < 2 || argc > 6) {
 		cerr << "Invalid number of arguments specified." << endl;
@@ -76,31 +76,17 @@ int main(int argc, char* argv[]) {
 		}
 
 		if(argc >= 5) {
-			logfiles[0] = new ofstream(argv[4]);
-			if(logfiles[0] == NULL || !logfiles[0]->is_open()) {
-				cerr << "Unable to open '" << argv[4] << "' for writing.  Aborting." << endl;
-				return EXIT_FAILURE;
-			}
+			logfiles[0] = argv[4];
 		}
 
 		if(argc >= 6) {
-			logfiles[1] = new ofstream(argv[5]);
-			if(logfiles[1] == NULL || !logfiles[1]->is_open()) {
-				cerr << "Unable to open '" << argv[5] << "' for writing.  Aborting." << endl;
-				return EXIT_FAILURE;
-			}
-
+			logfiles[1] = argv[5];
 		}
 	}
 
 	// Spawn sandboxed child processes, with timeouts:
 	ChildProcess bot[2];
-	fo(i,2) {
-		vector<string> argv;
-		argv.push_back(sandboxer);
-		argv.push_back(programs[i]);
-		bot[i] = ChildProcess(sandboxer, argv, MAX_INIT_TIME);
-	}
+	fo(i,2) bot[i] = ChildProcess(sandboxer, {sandboxer, programs[i], logfiles[i]}, MAX_INIT_TIME);
 
 	int player_id[2], player_x[2], player_y[2];
 
@@ -271,25 +257,8 @@ int main(int argc, char* argv[]) {
 	
 	HT::Thread::Sleep(50); // Allow a modest amount of time for the processes to gracefully shutdown.
 	
-	// Keep handles on the error pipes:
-	iopipe log_pipe[2] = {iopipe(0), iopipe(0)};
-	fo(i,2) log_pipe[i] = bot[i].get_err_pipe();
-
 	// DIE:
 	fo(i,2) bot[i].kill();
-
-	fo(i,2) if(logfiles[i]) {
-
-		*logfiles[i] << "-- Beginning of logged output --\n";
-
-		// Hacky, but there's no nice way to do this that I could find:
-		log_pipe[i] << '\0' << flush;
-		log_pipe[i].get_istream().get(*logfiles[i]->rdbuf(), '\0');
-		
-		*logfiles[i] << "\n-- End of logged output --" << endl;
-		delete logfiles[i];
-
-	}
 
 	return EXIT_SUCCESS;
 }

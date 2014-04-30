@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [ -z "$2" ]; then
+	logfile="/dev/null"
+else
+	logfile="$2"
+fi
+exec 2>$logfile
+
 id=-2
 `(
 if flock 10; then
@@ -55,9 +62,16 @@ done < $1
 
 directory=$(dirname $1)
 
-(cd $directory &&
-cp $files /tmp/box/$id/box/) &&
-isolate/isolate --box-id=$id --env=HOME=/box --mem=100000 --time=1000 --quota=1,1 --run -- $run
+( ( cd $directory && cp $files /tmp/box/$id/box/ ) ||
+  ( echo "Failed to initialise sandbox directory.  Please report this error." 1>&2 && false ) ) &&
+
+(
+  echo "----------------- Running bot - begin log... ---------------" 1>&2
+  echo "------------------------------------------------------------" 1>&2
+  isolate/isolate --box-id=$id --env=HOME=/box --mem=100000 --time=1000 --quota=1,1 --run -- $run
+  echo "------------------------------------------------------------" 1>&2
+  echo "------------------------ End of log ------------------------" 1>&2
+)
 
 # Clean up:
 isolate/isolate --box-id=$id --cleanup
