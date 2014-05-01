@@ -3,16 +3,27 @@ import sys
 import traceback
 import ioblock
 
+
 # Functions for IO
 def read(var_type = None):
-	if var_type is None:
-		return sys.stdin.readline()
-	else:
-		return list(map(var_type, sys.stdin.readline().split()))
+	try:
+		if var_type is None:
+			return sys.stdin.readline()
+		else:
+			return list(map(var_type, sys.stdin.readline().split()))
+
+	except Exception as e:
+		panic("Failed to read data from the arbiter.")
+
 
 def write(*variables):
-	sys.stdout.write(' '.join(map(str, variables)) + '\n')
-	sys.stdout.flush()
+	try:
+		sys.stdout.write(' '.join(map(str, variables)) + '\n')
+		sys.stdout.flush()
+	
+	except Exception as e:
+		panic("Failed to write data to the arbiter.")
+
 
 def log(message = ""):
 	sys.stderr.write(str(message) + '\n')
