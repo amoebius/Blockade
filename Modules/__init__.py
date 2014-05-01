@@ -38,12 +38,14 @@ def filename(module, code):
 def config(module, filename, basepath = ''):
 	
 	_assertModuleExists(module)
-
+	
 	try:
+
+		basepath = os.path.join(basepath, module)
 		files = [filename] + [os.path.join(basepath, file) for file in registry[module].files]
 		run = registry[module].run % os.path.basename(filename)
 
-	except e as Exception:
+	except Exception as e:
 		raise RuntimeError("Encountered error attempting to read module-specific configuration for '%s'." % module)
 
 	return _export('files', ' '.join(files)) + _export('run', run)

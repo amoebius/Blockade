@@ -1,0 +1,14 @@
+#!/usr/bin/python
+
+import sys
+import modules
+
+module = sys.argv[1]
+program = sys.argv[2]
+
+try:
+	print(modules.config(module, program, 'modules'))
+
+except Exception as e:
+	print(str(type(e).__name__) + ": " + str(e))
+	sys.exit(1)

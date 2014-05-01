@@ -40,53 +40,47 @@ int board_size;
 const int UP = 0, RIGHT = 1, DOWN = 2, LEFT = 3, NUM_DIRECTIONS = 4;
 const int dx[] = {0, 1, 0, -1}, dy[] = {-1, 0, 1, 0};
 
-const string HELP_PROMPT = "-h";
+const string HELP_PROMPT = "?";
 const string str_turn = "turn", str_move = "move", str_block = "block", str_nothing = "nothing", str_error = "error", str_end = "end";
 const string directions[] = { "up", "right", "down", "left" };
 
 int main(int argc, char* argv[]) {
 
-	string programs[2];
+	string modules[2], programs[2];
 	board_size = DEFAULT_SIZE;
 	string logfiles[2];
+	
+	if (argc == 2 && argv[1] == HELP_PROMPT) {
+		showHelp(cout);
+		return EXIT_SUCCESS;
+	}
 
-	if (argc < 2 || argc > 6) {
+	if (argc < 5 || argc == 7 || argc > 8) {
 		cerr << "Invalid number of arguments specified." << endl;
 		showUsage(cerr);
 		cerr << "Run `arbiter " << HELP_PROMPT << "` for more options." << endl;
 		return EXIT_FAILURE;
 	}
 
-	if(argc == 2) {
-		fo(i,2) programs[i] = argv[1];
-		if(programs[0] == HELP_PROMPT) {
-			showHelp(cout);
-			return EXIT_SUCCESS;
-		}
+	fo(i,2) modules[i] = argv[2*i + 1], programs[i] = argv[2*i + 2];
 
-	} else {
-		fo(i,2) programs[i] = argv[i+1];
-
-		if(argc >= 4) {
-			board_size = atoi(argv[3]);
-			if(board_size < MIN_SIZE || board_size > MAX_SIZE) {
-				cerr << "Invalid board size.  Specified board size must be an integer between " << MIN_SIZE << " and " << MAX_SIZE << endl;
-				return EXIT_FAILURE;
-			}
-		}
-
-		if(argc >= 5) {
-			logfiles[0] = argv[4];
-		}
-
-		if(argc >= 6) {
-			logfiles[1] = argv[5];
+	if(argc >= 6) {
+		board_size = atoi(argv[5]);
+		if(board_size < MIN_SIZE || board_size > MAX_SIZE) {
+			cerr << "Invalid board size.  Specified board size must be an integer between " << MIN_SIZE << " and " << MAX_SIZE << "." << endl;
+			return EXIT_FAILURE;
 		}
 	}
 
+	if(argc > 6) {
+		logfiles[0] = argv[6];
+		logfiles[1] = argv[7];
+	}
+
+
 	// Spawn sandboxed child processes, with timeouts:
 	ChildProcess bot[2];
-	fo(i,2) bot[i] = ChildProcess(sandboxer, {sandboxer, programs[i], logfiles[i]}, MAX_INIT_TIME);
+	fo(i,2) bot[i] = ChildProcess(sandboxer, {sandboxer, modules[i], programs[i], logfiles[i]}, MAX_INIT_TIME);
 
 	int player_id[2], player_x[2], player_y[2];
 
@@ -285,14 +279,21 @@ const bool canReach(int x, int y, int destination_y) {
 
 
 void showUsage(ostream& stream) {
-	stream << "Usage:  arbiter first_bot [second_bot = first_bot] [board_size = " << DEFAULT_SIZE << "] [first_bot_logfile] [second_bot_logfile]" << endl;
+	stream << "Usage:  arbiter first_module first_bot second_module second_bot [board_size=" << DEFAULT_SIZE << " [first_bot_logfile second_bot_logfile]]" << endl;
 }
 
 void showHelp(ostream& stream) {
 	showUsage(stream);
-	stream << "first_bot:          The relative or absolute path of the first bot executable." << endl;
-	stream << "second_bot:         The relative or absolute path of the second bot executable." << endl;
+	stream << endl;
+	stream << "first_module:       The name of the module to use for the first bot." << endl;
+	stream << "first_bot:          The path of the first bot's source file." << endl;
+	stream << endl;
+	stream << "second_module:      The name of the module to use for the second bot." << endl;
+	stream << "second_bot:         The path of the second bot's source file." << endl;
+	stream << endl;
 	stream << "board_size:         The size of the board to use (defaults to " << DEFAULT_SIZE << ")." << endl;
-	stream << "first_bot_logfile:  The relative or absolute path of a file to log the output of the first bot to." << endl;
-	stream << "second_bot_logfile: The relative or absolute path of a file to log the outupt of the second bot to." << endl;
+	stream << endl;
+	stream << "first_bot_logfile:  The path of a file to log the output of the first bot to." << endl;
+	stream << "second_bot_logfile: The path of a file to log the outupt of the second bot to." << endl;
+	stream << endl;
 }

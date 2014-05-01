@@ -1,77 +1,113 @@
 #!/bin/bash
 
-if [ -z "$2" ]; then
-	logfile="/dev/null"
-else
-	logfile="$2"
-fi
-exec 2>$logfile
+# Maximum sandbox id:
+maximum_sandbox_id=999
 
-id=-2
-`(
+# The module specified:
+module="$1"
+
+# The source file specified to run:
+file="$2"
+
+# Log file:
+logfile="$3"
+if [ -z "$logfile" ]; then
+	logfile="/dev/null"
+fi
+
+# Redirect stderr (used for logging) to the log file:
+exec 2>"$logfile"
+
+
+echo "Initialising bot instance..." 1>&2
+
+
+# Configure:
+config=$(./config "$module" "$file")
+if (( $? != 0 )); then
+	
+	echo "Error in getting bot's configuration.  Please report this error:" 1>&2
+	echo "   $config" 1>&2
+	exit 1
+fi
+eval $config
+
+
+# Get a sandbox id:
+id=-1
+eval $( (
 if flock 10; then
-	id=1000
-	for i in {0..999}; do
+	id=-1
+	for (( i=0; i <=$maximum_sandbox_id; i++ )); do
 		if [ ! -d "/tmp/box/$i" ]; then
 			id=$i
 			break
 		fi
 	done
-	if [ $id -eq 1000 ]; then
-		echo "export id=$id"
+	if [ $id -eq -1 ]; then
+		echo "id=$id"
 	else
-		if isolate/isolate --box-id=$id --init > /dev/null; then
-			echo "export id=$id"
+		if isolate/isolate --box-id=$id --init 2>&1 >/dev/null; then
+			echo "id=$id"
 		else
 			rm -rf "/tmp/box/$id"
-			echo "export id=-1"
+			echo "id=-2"
 		fi
 	fi
 else
-	echo "export id=-1"
+	echo "id=-3"
 fi
-) 2>/dev/null  10>/tmp/box/lock`
-
-if [ $id -eq 1000 ]; then
-	echo "Could not find a free sandbox directory!  Please report this error." 1>&2
-	exit 1
-fi
-if [ $id -eq -1 ]; then
-	echo "Could not initialise sandbox!  Please report this error." 1>&2
-	exit 1
-fi
-if [ $id -eq -2 ]; then
-	echo "Could not obtain sandbox lock!  Please report this error." 1>&2
-	exit 1
-fi
-
-if [ ! -r "$1" ]; then
-	echo "Could not open the given configuration files.  Please report this error." 1>&2
-	exit 1
-fi
+) 2>/dev/null  10>/tmp/box/lock )
 
 
-while read -r line; do
-	key=`echo "${line%%=*}" | xargs`
-	val=`echo "${line#*=}" | xargs` 
-	if [ ! -z "$key" ]; then
-		export $key="$val"
+# If an error occurred, deal with it.
+if [ $id -lt 0 ]; then
+
+	if [ $id -eq -1 ]; then
+		echo "Could not find a free sandbox directory!  Please report this error." 1>&2
 	fi
-done < $1
+	if [ $id -eq -2 ]; then
+		echo "Could not initialise sandbox!  Please report this error." 1>&2
+	fi
+	if [ $id -eq -3 ]; then
+		echo "Could not obtain sandbox lock!  Please report this error." 1>&2
+	fi
+	
+	# Clean up and die:
+	isolate/isolate --box-id=$id --cleanup
+	exit 1
+fi
 
 
-directory=$(dirname $1)
-
-( ( cd $directory && cp $files /tmp/box/$id/box/ ) ||
+( ( for file in $files; do cp "$file" /tmp/box/$id/box/; done ) 1>&2 ||
   ( echo "Failed to initialise sandbox directory.  Please report this error." 1>&2 && false ) ) &&
-
 (
+  echo "------------------------------------------------------------" 1>&2
   echo "----------------- Running bot - begin log... ---------------" 1>&2
   echo "------------------------------------------------------------" 1>&2
-  isolate/isolate --box-id=$id --env=HOME=/box --mem=100000 --time=1000 --quota=1,1 --run -- $run
+
+  remove="/usr"
+
+  allowed_usr="bin sbin include lib"
+
+  allowed_usr_dirs=$( for i in $allowed_usr; do echo "/usr/$i"; done )
+  allowed_usr_local_dirs=$( for i in $allowed_usr; do echo "/usr/local/$i"; done )
+  
+  grant="/etc/alternatives $allowed_usr_dirs $allowed_usr_local_dirs $allowed_dev"  
+
+  remove_dirs=$( for i in $remove; do echo "--dir=$i= "; done ) 
+  grant_dirs=$( for i in $grant;  do echo "--dir=$i "; done ) 
+
+  isolate/isolate --box-id=$id --env=HOME=/box --env=PATH=$PATH -p=10 --mem=100000000 --time=1000 --quota=1000,100 \
+                  $remove_dirs \
+				  $grant_dirs \
+                  --run -- $run
+
   echo "------------------------------------------------------------" 1>&2
   echo "------------------------ End of log ------------------------" 1>&2
+  echo "------------------------------------------------------------" 1>&2
 )
 
 # Clean up:
 isolate/isolate --box-id=$id --cleanup
+exit 0
