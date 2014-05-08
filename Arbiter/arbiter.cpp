@@ -99,6 +99,13 @@ int main(int argc, char* argv[]) {
 		break;
 	}
 
+	fo(i,2) if(!nameValid(names[i])) {
+		cout << i << " Invalid: Name supplied by the bot was invalid." << endl;
+		game_running = false;
+		winner = 1 - i;
+		break;
+	}
+
 	int color_red[2], color_green[2], color_blue[2];
 	if(game_running) {
 		// Now that each bot has been initialised, update the amount of time we allow them on each read:
@@ -257,6 +264,15 @@ int main(int argc, char* argv[]) {
 	return EXIT_SUCCESS;
 }
 
+const bool nameValid(string name) {
+	if(name.size() == 0 || name.size() > 20) {
+		return false;
+	}
+	fo(i,name.size()) if((name[i] < 'a' || name[i] > 'z') && (name[i] < 'A' || name[i] > 'Z') && (name[i] < '0' || name[i] > '9') && name[i] != '_') {
+		return false;
+	}
+	return true;
+}
 
 const bool outside(int x, int y) {
 	return x < 0 || y < 0 || x >= board_size || y >= board_size;
