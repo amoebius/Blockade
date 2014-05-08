@@ -31,7 +31,7 @@ using namespace cpipe;
 
 
 const string sandboxer = "sandbox";
-const int MAX_INIT_TIME = 8000, MAX_TURN_TIME = 1500;
+const int MAX_INIT_TIME = 10000, MAX_TURN_TIME = 1500;
 
 const int MIN_SIZE = 5, MAX_SIZE = 50, DEFAULT_SIZE = 25;
 bool blocked[MAX_SIZE][MAX_SIZE];
