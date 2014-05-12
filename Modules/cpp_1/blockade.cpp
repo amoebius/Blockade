@@ -41,7 +41,7 @@ int main() {
 	ioblock::unblock();
 
 	// Limit the name length:
-	int maxLen = min<int>(20, player_name.size());
+	int maxLen = min<int>(16, player_name.size());
 
 	// Search for invalid characters, and if they exist, truncate the name:
 	for(int i=0; i<maxLen; ++i) {

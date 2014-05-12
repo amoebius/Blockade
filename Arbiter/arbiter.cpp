@@ -295,7 +295,7 @@ int main(int argc, char* argv[]) {
 
 const bool nameValid(string name) {
 
-	if (name.size() == 0 || name.size() > 20) {
+	if (name.size() == 0 || name.size() > 16) {
 		return false;
 	}
 
