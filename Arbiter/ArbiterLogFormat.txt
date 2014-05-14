@@ -2,7 +2,7 @@
 # Definitions:
 # <playerID>      => Either '0' or '1', linking an event to a player.
 # <message>       => An arbitrary string ending at the next newline.
-# <playerName[i]> => The bot-specified name for the ith player.
+# <playerName[i]> => The bot-specified name for the ith player.  Note that names are less than 16 characters in length, and can only have alphanumeric characters or underscores.
 # <colorRed[i]>   => The red component of the bot-specified color for the ith player.
 # <colorGreen[i]> => The green component of the bot-specified color for the ith player.
 # <colorBlue[i]>  => The blue component of the bot-specified color for the ith player.
