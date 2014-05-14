@@ -118,6 +118,12 @@ int main(int argc, char* argv[]) {
 	
 	if (game_running) {
 		
+		// Log global information:
+		cout << "-1 " << names[0] << " versus " << names[1] << " size " << board_size << endl;
+		fo (i, 2) {
+			cout << i << " starts at " << player_x[i] << ' ' << player_y[i] << endl;
+		}
+		
 		// Now that each bot has been initialised, update the amount of time we allow them on each read:
 		fo (i, 2) {
 			bot[i].set_timeout(MAX_TURN_TIME);
@@ -140,10 +146,6 @@ int main(int argc, char* argv[]) {
 		handshake_succeeded = true;
 		
 		// Log global information:
-		cout << names[0] << " versus " << names[1] << " size " << board_size << endl;
-		fo (i, 2) {
-			cout << i << " starts at " << player_x[i] << ' ' << player_y[i] << endl;
-		}
 		fo (i, 2) {
 			cout << i << " RGB " << color_red[i] << ' ' << color_green[i] << ' ' << color_blue[i] << endl;
 		}
