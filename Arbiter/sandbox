@@ -32,13 +32,17 @@ if (( $? != 0 )); then
 fi
 eval $config
 
+# Ensure /tmp/box exists
+if [ ! -d "/tmp/box" ]; then
+	mkdir "/tmp/box"
+fi
 
 # Get a sandbox id:
 id=-1
 eval $( (
 if flock 10; then
 	id=-1
-	for (( i=0; i <=$maximum_sandbox_id; i++ )); do
+	for (( i=0; i<=$maximum_sandbox_id; i++ )); do
 		if [ ! -d "/tmp/box/$i" ]; then
 			id=$i
 			break
