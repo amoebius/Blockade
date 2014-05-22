@@ -68,8 +68,8 @@ try:
 	if not all(c.isalnum() or c == '_' for c in name):
 		panic('The name provided by the bot contains invalid characters - only letters, numbers and underscores are permitted.')
 	
-	if len(name) > 20:
-		name = name[:20]
+	if len(name) > 16:
+		name = name[:16]
 	if len(name) == 0:
 		name = 'Bot'
 	

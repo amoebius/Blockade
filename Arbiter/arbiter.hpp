@@ -13,6 +13,9 @@
 #define __ARBITER_HPP
 
 
+#include <string>
+
+const bool nameValid(std::string name);
 const bool outside(int x, int y);
 const bool canReach(int x, int y, int destination_y);
 

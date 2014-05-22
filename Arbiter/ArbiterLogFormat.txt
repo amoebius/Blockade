@@ -1,0 +1,30 @@
+
+# Definitions:
+# <playerID>      => Either '0' or '1', linking an event to a player.
+# <message>       => An arbitrary string ending at the next newline.
+# <playerName[i]> => The bot-specified name for the ith player.  Note that names are less than 16 characters in length, and can only have alphanumeric characters or underscores.
+# <colorRed[i]>   => The red component of the bot-specified color for the ith player.
+# <colorGreen[i]> => The green component of the bot-specified color for the ith player.
+# <colorBlue[i]>  => The blue component of the bot-specified color for the ith player.
+# <size>          => The board size, specified by an integer.
+# <x> <y>         => The point (x, y), specified by two integers.
+# <direction>     => One of "up", "down", "left", or "right".
+
+
+# Possible at any point:
+<playerID> Invalid: <message>
+<playerID> Error:   <message>
+
+# Possible after any move, guaranteed after any error, and guaranteed to occur exactly once at the end of the log:
+<playerID> wins
+
+# Opening:
+-1 <playerName[0]> versus <playerName[1]> size <size>
+<playerID> starts at <x> <y>
+<playerID> starts at <x> <y>
+<playerID> RGB <colorRed[playerID]> <colorGreen[playerID]> <colorBlue[playerID]>
+<playerID> RGB <colorRed[playerID]> <colorGreen[playerID]> <colorBlue[playerID]>
+
+# The game log will be a series of moves of either of the two formats:
+<playerID> moved <direction> to <x> <y>
+<playerID> blocked <x> <y>
